@@ -1,6 +1,4 @@
 import {
-    Raycaster,
-    Vector2,
     Vector3,
     BoxGeometry,
     SphereGeometry,
@@ -8,6 +6,7 @@ import {
     MeshStandardMaterial,
     Mesh
 } from 'three';
+import { SmartPlacementSystem } from './placement-system.js';
 
 export class EditorController {
     constructor(scene, camera, placedObjects) {
@@ -16,57 +15,120 @@ export class EditorController {
         this.placedObjects = placedObjects;
         this.enabled = false;
 
-        this.raycaster = new Raycaster();
-        this.mouse = new Vector2();
-
         this.selectedObjectType = 'cube';
         this.splat = null;
+        this.splatProxy = null; // Proxy геометрия для лучшего ray casting
+
+        // Инициализируем систему умного размещения
+        this.placementSystem = new SmartPlacementSystem(scene, camera);
 
         this.bindEvents();
+
+        console.log('EditorController initialized with smart placement');
     }
 
     bindEvents() {
         document.addEventListener('click', this.onClick.bind(this));
+
+        // Дополнительные события для отладки
+        document.addEventListener('keydown', (event) => {
+            // P - переключить отладочные плоскости
+            if (event.code === 'KeyP' && this.enabled) {
+                event.preventDefault();
+                this.placementSystem.setDebugMode(!this.placementSystem.showDebugPlanes);
+                console.log('Debug planes:', this.placementSystem.showDebugPlanes ? 'ON' : 'OFF');
+            }
+        });
     }
 
     onClick(event) {
         if (!this.enabled) return;
 
-        // Вычисляем координаты мыши в нормализованном пространстве
-        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        // Игнорируем клики по UI элементам
+        if (event.target.closest('.ui-panel')) return;
 
-        this.raycaster.setFromCamera(this.mouse, this.camera);
+        // Вычисляем координаты мыши в нормализованном пространстве
+        const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+        const mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
 
         if (this.selectedObjectType === 'delete') {
-            this.deleteObject();
+            this.deleteObject(mouseX, mouseY);
         } else {
-            this.placeObject();
+            this.placeObject(mouseX, mouseY);
         }
     }
 
-    placeObject() {
-        // Ищем пересечения с существующими объектами и splat
-        const intersectTargets = [...this.placedObjects];
-        if (this.splat) {
-            intersectTargets.push(this.splat);
+    placeObject(mouseX, mouseY) {
+        // Используем систему умного размещения
+        const placement = this.placementSystem.getPlacementPosition(
+            mouseX,
+            mouseY,
+            this.splat,
+            this.placedObjects
+        );
+
+        if (placement && placement.position) {
+            const newObject = this.createObject(
+                this.selectedObjectType,
+                placement.position,
+                placement.normal,
+                placement.surface
+            );
+
+            if (newObject) {
+                this.scene.add(newObject);
+                this.placedObjects.push(newObject);
+
+                console.log(`Added ${this.selectedObjectType} on ${placement.surface}:`, {
+                    position: placement.position,
+                    normal: placement.normal
+                });
+            }
+        } else {
+            console.warn('Could not find placement position');
+
+            // Fallback: размещение перед камерой
+            this.placeObjectInFrontOfCamera();
         }
+    }
 
-        const intersects = this.raycaster.intersectObjects(intersectTargets);
+    // Fallback метод размещения
+    placeObjectInFrontOfCamera() {
+        const direction = new Vector3();
+        this.camera.getWorldDirection(direction);
 
-        if (intersects.length > 0) {
-            const intersectionPoint = intersects[0].point;
-            const newObject = this.createObject(this.selectedObjectType, intersectionPoint);
+        const position = this.camera.position.clone();
+        position.add(direction.multiplyScalar(2));
 
+        const newObject = this.createObject(
+            this.selectedObjectType,
+            position,
+            direction.negate(),
+            'air'
+        );
+
+        if (newObject) {
             this.scene.add(newObject);
             this.placedObjects.push(newObject);
-
-            console.log(`Added ${this.selectedObjectType} at:`, intersectionPoint);
+            console.log(`Added ${this.selectedObjectType} in front of camera (fallback)`);
         }
     }
 
-    deleteObject() {
-        const intersects = this.raycaster.intersectObjects(this.placedObjects);
+    deleteObject(mouseX, mouseY) {
+        // Для удаления используем более простой ray casting только с объектами
+        const placement = this.placementSystem.getPlacementPosition(
+            mouseX,
+            mouseY,
+            null, // не используем splat для удаления
+            this.placedObjects
+        );
+
+        // Альтернативный подход: прямой ray casting с объектами
+        this.placementSystem.mouse.x = mouseX;
+        this.placementSystem.mouse.y = mouseY;
+        this.placementSystem.raycaster.setFromCamera(this.placementSystem.mouse, this.camera);
+
+        const intersects = this.placementSystem.raycaster.intersectObjects(this.placedObjects);
 
         if (intersects.length > 0) {
             const objectToRemove = intersects[0].object;
@@ -77,11 +139,15 @@ export class EditorController {
                 this.placedObjects.splice(index, 1);
             }
 
+            // Очистка памяти
+            objectToRemove.geometry.dispose();
+            objectToRemove.material.dispose();
+
             console.log('Removed object:', objectToRemove.userData);
         }
     }
 
-    createObject(type, position) {
+    createObject(type, position, normal = new Vector3(0, 1, 0), surface = 'unknown') {
         let geometry, material, mesh;
 
         // Размер 20см = 0.2 в Three.js единицах
@@ -124,10 +190,19 @@ export class EditorController {
         mesh.position.copy(position);
         mesh.castShadow = true;
         mesh.receiveShadow = true;
+
+        // Ориентируем объект по нормали поверхности
+        if (type === 'cylinder') {
+            // Цилиндр ориентируем вертикально относительно поверхности
+            mesh.lookAt(position.clone().add(normal));
+        }
+
         mesh.userData = {
             type: type,
             id: Date.now(),
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            surface: surface,
+            normal: normal.toArray()
         };
 
         return mesh;
@@ -140,10 +215,29 @@ export class EditorController {
 
     setSplat(splat) {
         this.splat = splat;
+
+        // Создаем proxy для лучшего взаимодействия
+        if (splat) {
+            this.createSplatProxy();
+        }
+    }
+
+    createSplatProxy() {
+        if (this.splatProxy) {
+            this.scene.remove(this.splatProxy);
+        }
+
+        this.splatProxy = this.placementSystem.createSplatProxy(this.splat);
+
+        if (this.splatProxy) {
+            this.scene.add(this.splatProxy);
+            console.log('Created splat proxy for better object placement');
+        }
     }
 
     setEnabled(enabled) {
         this.enabled = enabled;
+        console.log(`Editor ${enabled ? 'enabled' : 'disabled'}`);
     }
 
     // Методы для сохранения/загрузки (пока закомментированы)
@@ -156,7 +250,9 @@ export class EditorController {
                 rotation: obj.rotation.toArray(),
                 scale: obj.scale.toArray(),
                 id: obj.userData.id,
-                createdAt: obj.userData.createdAt
+                createdAt: obj.userData.createdAt,
+                surface: obj.userData.surface,
+                normal: obj.userData.normal
             })),
             metadata: {
                 exportedAt: new Date().toISOString(),
@@ -174,7 +270,14 @@ export class EditorController {
         // Загружаем объекты из данных
         sceneData.objects.forEach(objData => {
             const position = new Vector3(...objData.position);
-            const newObject = this.createObject(objData.type, position);
+            const normal = objData.normal ? new Vector3(...objData.normal) : new Vector3(0, 1, 0);
+
+            const newObject = this.createObject(
+                objData.type,
+                position,
+                normal,
+                objData.surface || 'unknown'
+            );
 
             if (newObject) {
                 // Восстанавливаем поворот и масштаб
@@ -200,4 +303,13 @@ export class EditorController {
         this.placedObjects.length = 0;
     }
     */
+
+    // Очистка ресурсов
+    dispose() {
+        if (this.splatProxy) {
+            this.scene.remove(this.splatProxy);
+        }
+
+        this.placementSystem.dispose();
+    }
 }
