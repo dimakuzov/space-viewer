@@ -78,7 +78,7 @@ class LumaSceneApp {
     async loadLumaScene() {
         try {
             this.splat = new LumaSplatsThree({
-                source: 'https://lumalabs.ai/capture/d80d4876-cf71-4b8a-8b5b-49ffac44cd4a'
+                source: 'https://lumalabs.ai/capture/20961f1d-3add-4382-a0f0-c0a6a53a5b45'
             });
             this.scene.add(this.splat);
 
