@@ -22,6 +22,7 @@ export class UIController {
 
         // Прицел
         this.crosshair = document.getElementById('crosshair');
+        this.lumaSceneApp = new LumaSceneApp(this);
 
         // Сохранение/загрузка (закомментировано в HTML)
         // this.saveSceneBtn = document.getElementById('saveScene');
@@ -80,7 +81,7 @@ export class UIController {
                     this.selectObjectType('delete');
                     break;
                 case 'KeyV':
-                    this.LumaSceneApp.toggleCollisionMeshVisibility();
+                    this.lumaSceneApp.toggleCollisionMeshVisibility();
                     break;
                 case 'KeyR':
                     this.resetCollisionMeshTransform();
