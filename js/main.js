@@ -6,6 +6,7 @@ import {
     AmbientLight
 } from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { LumaSplatsThree } from '@lumaai/luma-web';
 
 // Импорт модулей
@@ -17,6 +18,7 @@ class LumaSceneApp {
     constructor() {
         this.isEditMode = false;
         this.placedObjects = [];
+        this.glbMesh = null;
 
         this.initRenderer();
         this.initScene();
@@ -25,6 +27,7 @@ class LumaSceneApp {
         this.initControls();
         this.initControllers();
         this.loadLumaScene();
+        this.loadGLBMesh();
         this.bindEvents();
         this.startRenderLoop();
     }
@@ -89,6 +92,44 @@ class LumaSceneApp {
         }
     }
 
+    async loadGLBMesh() {
+        const loader = new GLTFLoader();
+
+        try {
+            const gltf = await new Promise((resolve, reject) => {
+                loader.load(
+                    'assets/two-rooms.glb',
+                    resolve,
+                    (progress) => {
+                        console.log('GLB loading progress:', (progress.loaded / progress.total * 100) + '%');
+                    },
+                    reject
+                );
+            });
+
+            this.glbMesh = gltf.scene;
+
+            // Настройка GLB mesh
+            this.glbMesh.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+
+            // Добавляем GLB в сцену
+            this.scene.add(this.glbMesh);
+
+            // Передаем GLB mesh в editor
+            this.editorController.setGLBMesh(this.glbMesh);
+
+            console.log('GLB mesh loaded successfully');
+
+        } catch (error) {
+            console.error('Failed to load GLB mesh:', error);
+        }
+    }
+
     bindEvents() {
         // Обработка изменения размера окна
         window.addEventListener('resize', () => {
@@ -119,6 +160,10 @@ class LumaSceneApp {
             this.placedObjects.splice(index, 1);
             this.scene.remove(object);
         }
+    }
+
+    getGLBMesh() {
+        return this.glbMesh;
     }
 
     startRenderLoop() {
