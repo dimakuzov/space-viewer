@@ -17,8 +17,6 @@
 
         <div class="object-tools" id="objectTools" style="display: none;">
             <button id="addCube">Add Cube</button>
-            <button id="addSphere">Add Sphere</button>
-            <button id="addCylinder">Add Cylinder</button>
             <button id="deleteObject">Delete Object</button>
         </div>
 
@@ -30,8 +28,18 @@
             <div>Click to lock cursor</div>
             <br>
             <div><strong>Edit Mode:</strong></div>
-            <div>Click to place objects</div>
-            <div>Click on objects to select/delete</div>
+            <div>Click to place cubes</div>
+            <div>Click on objects to delete</div>
+            <div>Tab - Toggle modes</div>
+            <br>
+            <div><strong>GLB Adjustment:</strong></div>
+            <div>I/K - Z position</div>
+            <div>J/L - X position</div>
+            <div>U/O - Y position</div>
+            <div>+/- - Scale</div>
+            <div>Y/H - Rotate Y</div>
+            <div>Ctrl+R - Reset</div>
+            <div>Shift - Faster movement</div>
         </div>
 
         <!-- Временно закомментировано
@@ -48,8 +56,8 @@
     <script type="importmap">
     {
         "imports": {
-            "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.157.0/examples/jsm/",
+            "three": "https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/",
             "@lumaai/luma-web": "https://unpkg.com/@lumaai/luma-web@0.2.0/dist/library/luma-web.module.js"
         }
     }
