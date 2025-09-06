@@ -18,7 +18,6 @@ class LumaSceneApp {
     constructor() {
         this.isEditMode = false;
         this.placedObjects = [];
-        this.glbMesh = null;
 
         this.initRenderer();
         this.initScene();
@@ -27,7 +26,7 @@ class LumaSceneApp {
         this.initControls();
         this.initControllers();
         this.loadLumaScene();
-        this.loadGLBMesh();
+        this.loadGLBModel();
         this.bindEvents();
         this.startRenderLoop();
     }
@@ -92,41 +91,42 @@ class LumaSceneApp {
         }
     }
 
-    async loadGLBMesh() {
-        const loader = new GLTFLoader();
-
+    async loadGLBModel() {
         try {
+            const loader = new GLTFLoader();
+
             const gltf = await new Promise((resolve, reject) => {
                 loader.load(
-                    'assets/two-rooms.glb',
+                    './assets/two-rooms.glb',
                     resolve,
-                    (progress) => {
-                        console.log('GLB loading progress:', (progress.loaded / progress.total * 100) + '%');
-                    },
+                    undefined,
                     reject
                 );
             });
 
-            this.glbMesh = gltf.scene;
+            this.glbModel = gltf.scene;
 
-            // Настройка GLB mesh
-            this.glbMesh.traverse((child) => {
+            // Настройка модели для raycast
+            this.glbModel.traverse((child) => {
                 if (child.isMesh) {
                     child.castShadow = true;
                     child.receiveShadow = true;
                 }
             });
 
-            // Добавляем GLB в сцену
-            this.scene.add(this.glbMesh);
+            // Начальная позиция и масштаб
+            this.glbModel.position.set(0, 0, 0);
+            this.glbModel.scale.set(1, 1, 1);
+            this.glbModel.visible = true;
 
-            // Передаем GLB mesh в editor
-            this.editorController.setGLBMesh(this.glbMesh);
+            this.scene.add(this.glbModel);
 
-            console.log('GLB mesh loaded successfully');
+            // Передаем модель в editor для настройки позиции
+            this.editorController.setGLBModel(this.glbModel);
 
+            console.log('GLB model loaded successfully');
         } catch (error) {
-            console.error('Failed to load GLB mesh:', error);
+            console.error('Failed to load GLB model:', error);
         }
     }
 
@@ -160,10 +160,6 @@ class LumaSceneApp {
             this.placedObjects.splice(index, 1);
             this.scene.remove(object);
         }
-    }
-
-    getGLBMesh() {
-        return this.glbMesh;
     }
 
     startRenderLoop() {
