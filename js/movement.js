@@ -1,4 +1,4 @@
-import { Vector3 } from 'three';
+import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r158/three.module.min.js';
 
 export class MovementController {
     constructor(camera, pointerLockControls) {
@@ -22,8 +22,8 @@ export class MovementController {
         };
 
         // Векторы для расчетов
-        this.velocity = new Vector3();
-        this.direction = new Vector3();
+        this.velocity = new THREE.Vector3();
+        this.direction = new THREE.Vector3();
 
         this.bindEvents();
     }

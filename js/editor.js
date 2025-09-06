@@ -388,7 +388,7 @@ export class EditorController {
 
         // Загружаем объекты из данных
         sceneData.objects.forEach(objData => {
-            const position = new Vector3(...objData.position);
+            const position = new THREE.Vector3(...objData.position);
             const newObject = this.createObject(objData.type, position);
 
             if (newObject) {
