@@ -135,3 +135,65 @@ canvas {
     width: 2px;
     margin-left: -1px;
 }
+
+.transform-tools {
+    margin-bottom: 15px;
+    border-top: 1px solid #444;
+    padding-top: 15px;
+}
+
+.transform-tools h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #FF9800;
+}
+
+.transform-section {
+    margin-bottom: 10px;
+}
+
+.transform-row {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.transform-row label {
+    display: flex;
+    align-items: center;
+    font-size: 11px;
+    flex: 1;
+}
+
+.transform-row input {
+    width: 50px;
+    padding: 2px 4px;
+    margin-left: 5px;
+    border: 1px solid #555;
+    background: #222;
+    color: white;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+.transform-buttons {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.transform-buttons button {
+    background: #FF5722;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    flex: 1;
+    font-size: 11px;
+    transition: background 0.3s;
+}
+
+.transform-buttons button:hover {
+    background: #D84315;
+}

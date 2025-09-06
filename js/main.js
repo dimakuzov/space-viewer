@@ -182,6 +182,22 @@ class LumaSceneApp {
         }
     }
 
+    toggleCollisionMeshVisibility() {
+        if (!this.collisionMesh) {
+            console.log('Collision mesh not loaded yet');
+            return;
+        }
+
+        this.collisionMesh.traverse((child) => {
+            if (child.isMesh) {
+                child.visible = !child.visible;
+            }
+        });
+
+        const isVisible = this.collisionMesh.children.some(child => child.isMesh && child.visible);
+        console.log(`Collision mesh visibility: ${isVisible ? 'visible' : 'hidden'}`);
+    }
+
     startRenderLoop() {
         this.renderer.setAnimationLoop(() => {
             // Обновление контроллеров
