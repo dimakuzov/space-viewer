@@ -16,8 +16,6 @@ export class UIController {
 
         // Кнопки объектов
         this.addCubeBtn = document.getElementById('addCube');
-        this.addSphereBtn = document.getElementById('addSphere');
-        this.addCylinderBtn = document.getElementById('addCylinder');
         this.deleteObjectBtn = document.getElementById('deleteObject');
 
         // Прицел
@@ -41,14 +39,6 @@ export class UIController {
         // Инструменты редактирования
         this.addCubeBtn.addEventListener('click', () => {
             this.selectObjectType('cube');
-        });
-
-        this.addSphereBtn.addEventListener('click', () => {
-            this.selectObjectType('sphere');
-        });
-
-        this.addCylinderBtn.addEventListener('click', () => {
-            this.selectObjectType('cylinder');
         });
 
         this.deleteObjectBtn.addEventListener('click', () => {
@@ -82,12 +72,6 @@ export class UIController {
             switch(event.code) {
                 case 'Digit1':
                     this.selectObjectType('cube');
-                    break;
-                case 'Digit2':
-                    this.selectObjectType('sphere');
-                    break;
-                case 'Digit3':
-                    this.selectObjectType('cylinder');
                     break;
                 case 'KeyX':
                 case 'Delete':
@@ -137,12 +121,6 @@ export class UIController {
             case 'cube':
                 this.addCubeBtn.classList.add('active');
                 break;
-            case 'sphere':
-                this.addSphereBtn.classList.add('active');
-                break;
-            case 'cylinder':
-                this.addCylinderBtn.classList.add('active');
-                break;
             case 'delete':
                 this.deleteObjectBtn.classList.add('active');
                 break;
@@ -150,7 +128,7 @@ export class UIController {
     }
 
     clearObjectToolSelection() {
-        [this.addCubeBtn, this.addSphereBtn, this.addCylinderBtn, this.deleteObjectBtn]
+        [this.addCubeBtn, this.deleteObjectBtn]
             .forEach(btn => btn.classList.remove('active'));
     }
 
@@ -170,9 +148,10 @@ export class UIController {
             console.log('Scene saved:', sceneData);
 
         } catch (error) {
-            this.showNotification
+            this.showNotification('Failed to save scene', 'error');
+            console.error('Save error:', error);
         }
-            }
+    }
 
     loadScene() {
         try {

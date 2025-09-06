@@ -3,8 +3,6 @@ import {
     Vector2,
     Vector3,
     BoxGeometry,
-    SphereGeometry,
-    CylinderGeometry,
     MeshStandardMaterial,
     Mesh
 } from 'three';
@@ -87,37 +85,16 @@ export class EditorController {
         // Размер 20см = 0.2 в Three.js единицах
         const size = 0.2;
 
-        switch(type) {
-            case 'cube':
-                geometry = new BoxGeometry(size, size, size);
-                material = new MeshStandardMaterial({
-                    color: 0xff4444,
-                    metalness: 0.1,
-                    roughness: 0.7
-                });
-                break;
-
-            case 'sphere':
-                geometry = new SphereGeometry(size/2, 16, 16);
-                material = new MeshStandardMaterial({
-                    color: 0x44ff44,
-                    metalness: 0.1,
-                    roughness: 0.7
-                });
-                break;
-
-            case 'cylinder':
-                geometry = new CylinderGeometry(size/2, size/2, size, 16);
-                material = new MeshStandardMaterial({
-                    color: 0x4444ff,
-                    metalness: 0.1,
-                    roughness: 0.7
-                });
-                break;
-
-            default:
-                console.warn(`Unknown object type: ${type}`);
-                return null;
+        if (type === 'cube') {
+            geometry = new BoxGeometry(size, size, size);
+            material = new MeshStandardMaterial({
+                color: 0xff4444,
+                metalness: 0.1,
+                roughness: 0.7
+            });
+        } else {
+            console.warn(`Unknown object type: ${type}`);
+            return null;
         }
 
         mesh = new Mesh(geometry, material);
