@@ -3,58 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luma AI Scene Editor</title>
-    <link rel="stylesheet" href="styles/main.css">
+    <title>Luma Scene Editor</title>
+    <link rel="stylesheet" href="main.css">
 </head>
 <body>
+    <canvas></canvas>
+
     <div class="ui-panel">
-        <h3>Scene Editor</h3>
+        <h3>🎮 Scene Editor</h3>
 
         <div class="mode-toggle">
-            <button id="viewMode" class="active">View Mode</button>
-            <button id="editMode">Edit Mode</button>
+            <button id="viewMode" class="active">👀 View Mode</button>
+            <button id="editMode">✏️ Edit Mode</button>
         </div>
 
-        <div class="object-tools" id="objectTools" style="display: none;">
-            <button id="addCube">Add Cube</button>
-            <button id="addSphere">Add Sphere</button>
-            <button id="addCylinder">Add Cylinder</button>
-            <button id="deleteObject">Delete Object</button>
+        <div id="objectTools" class="object-tools" style="display: none;">
+            <button id="addCube">📦 Cube (1)</button>
+            <button id="addSphere">⚫ Sphere (2)</button>
+            <button id="addCylinder">🛢️ Cylinder (3)</button>
+
+            <!-- GLB Controls -->
+            <button id="positionGLB" class="glb-btn">🏠 Position GLB (4/G)</button>
+
+            <div class="glb-scale-controls">
+                <button id="scaleUpGLB" class="scale-btn">🔍 Scale Up</button>
+                <button id="scaleDownGLB" class="scale-btn">🔎 Scale Down</button>
+            </div>
+
+            <button id="deleteObject" class="delete-btn">🗑️ Delete (X)</button>
         </div>
 
         <div class="controls-info">
-            <div><strong>View Mode:</strong></div>
-            <div>WASD - Move</div>
-            <div>Q/E - Up/Down</div>
-            <div>Mouse - Look</div>
-            <div>Click to lock cursor</div>
-            <br>
-            <div><strong>Edit Mode:</strong></div>
-            <div>Click to place objects</div>
-            <div>Click on objects to select/delete</div>
+            <strong>View Mode:</strong><br>
+            • Click canvas to lock cursor<br>
+            • WASD/Arrows - Move<br>
+            • Mouse - Look around<br>
+            • Q/E - Up/Down<br>
+            • Shift - Run<br>
+            • Tab - Switch modes<br><br>
+
+            <strong>Edit Mode:</strong><br>
+            • Click to place objects<br>
+            • GLB positioning: WASD move, QE up/down, RF rotate<br>
+            • +/- change step size<br>
+            • ESC exit GLB positioning
         </div>
 
-        <!-- Временно закомментировано
+        <!-- Save/Load controls (commented out) -->
+        <!--
         <div class="save-load">
-            <button id="saveScene">Save Scene</button>
-            <button id="loadScene">Load Scene</button>
+            <button id="saveScene">💾 Save</button>
+            <button id="loadScene">📁 Load</button>
         </div>
         -->
     </div>
 
-    <div class="crosshair" id="crosshair" style="display: none;"></div>
-    <canvas></canvas>
+    <div id="crosshair" class="crosshair" style="display: none;"></div>
 
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.157.0/examples/jsm/",
-            "@lumaai/luma-web": "https://unpkg.com/@lumaai/luma-web@0.2.0/dist/library/luma-web.module.js"
-        }
-    }
-    </script>
-
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="main.js"></script>
 </body>
 </html>
