@@ -14,7 +14,7 @@ import { MovementController } from './movement.js';
 import { EditorController } from './editor.js';
 import { UIController } from './ui.js';
 
-class LumaSceneApp {
+export class LumaSceneApp {
     constructor() {
         this.isEditMode = false;
         this.placedObjects = [];
