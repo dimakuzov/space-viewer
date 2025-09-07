@@ -19,7 +19,6 @@ export class EditorController {
 
         this.selectedObjectType = 'cube';
         this.splat = null;
-        this.collisionMesh = null; // GLB mesh для коллизий
 
         this.bindEvents();
     }
@@ -45,23 +44,9 @@ export class EditorController {
     }
 
     placeObject() {
-        // Создаем список объектов для ray casting
+        // Ищем пересечения с существующими объектами и splat
         const intersectTargets = [...this.placedObjects];
-
-        // Добавляем collision mesh если он загружен
-        if (this.collisionMesh) {
-            // Получаем все mesh объекты из collision mesh (включая дочерние)
-            const meshes = [];
-            this.collisionMesh.traverse((child) => {
-                if (child.isMesh) {
-                    meshes.push(child);
-                }
-            });
-            intersectTargets.push(...meshes);
-        }
-
-        // Если collision mesh не загружен, используем splat как fallback
-        if (!this.collisionMesh && this.splat) {
+        if (this.splat) {
             intersectTargets.push(this.splat);
         }
 
@@ -75,9 +60,6 @@ export class EditorController {
             this.placedObjects.push(newObject);
 
             console.log(`Added ${this.selectedObjectType} at:`, intersectionPoint);
-            console.log('Intersected with:', intersects[0].object.type || 'unknown object');
-        } else {
-            console.log('No intersection found');
         }
     }
 
@@ -135,12 +117,6 @@ export class EditorController {
 
     setSplat(splat) {
         this.splat = splat;
-        console.log('Splat set for editor');
-    }
-
-    setCollisionMesh(collisionMesh) {
-        this.collisionMesh = collisionMesh;
-        console.log('Collision mesh set for editor');
     }
 
     setEnabled(enabled) {
