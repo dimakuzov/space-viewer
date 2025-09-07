@@ -178,8 +178,7 @@ canvas {
 
 .transform-buttons {
     display: flex;
-    flex-wrap: wrap;
-    gap: 2px;
+    gap: 5px;
     margin-top: 10px;
 }
 
