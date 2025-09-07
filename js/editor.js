@@ -154,18 +154,23 @@ export class EditorController {
 
         // Handle scaling (QE)
         if (this.colliderKeys.scaleUp || this.colliderKeys.scaleDown) {
+
+
             const currentScale = this.collisionMesh.scale.x; // Assuming uniform scaling
             let newScale = currentScale;
 
+
             if (this.colliderKeys.scaleUp) {
                 newScale = currentScale * (1 + this.colliderScaleSpeed);
+                console.log(`Scaling UP: ${currentScale.toFixed(4)} -> ${newScale.toFixed(4)}`);
             }
             if (this.colliderKeys.scaleDown) {
                 newScale = currentScale * (1 - this.colliderScaleSpeed);
+                console.log(`Scaling Down: ${currentScale.toFixed(4)} -> ${newScale.toFixed(4)}`);
             }
 
             // Prevent negative or zero scaling
-            if (newScale > 0.1) {
+            if (newScale > 0.01) {
                 this.collisionMesh.scale.setScalar(newScale);
                 scaleChanged = true;
             }
@@ -195,8 +200,11 @@ export class EditorController {
 
         // Log rotation changes
         if (rotationChanged) {
-            const rotationDegrees = (this.collisionMesh.rotation.y * 180 / Math.PI) % 360;
-            console.log(`Collider rotation: ${rotationDegrees.toFixed(2)}°`);
+            const rotationRadians = this.collisionMesh.rotation.y;
+            const rotationDegrees = (rotationRadians * 180 / Math.PI);
+            // Normalize to 0-360 range
+            const normalizedDegrees = ((rotationDegrees % 360) + 360) % 360;
+            console.log(`Collider rotation: ${normalizedDegrees.toFixed(2)}° (${rotationRadians.toFixed(4)} rad)`);
         }
     }
 
