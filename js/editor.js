@@ -171,11 +171,6 @@ export class EditorController {
         return this.glbVisible;
     }
 
-    // Метод для получения состояния режима редактирования коллайдера
-    isColliderEditMode() {
-        return this.colliderEditMode;
-    }
-
     // Обновление (нужно вызывать в render loop)
     update() {
         if (this.colliderEditMode) {
