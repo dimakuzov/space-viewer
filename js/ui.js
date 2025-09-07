@@ -159,6 +159,30 @@ export class UIController {
         console.log(`GLB visibility toggled: ${isVisible ? 'visible' : 'hidden'}`);
     }
 
+    // Новый метод для переключения режима редактирования коллайдера
+    toggleColliderEditMode() {
+        const isEditMode = this.app.editorController.setColliderEditMode(!this.app.editorController.isColliderEditMode());
+
+        // Очищаем выделение других инструментов
+        this.clearObjectToolSelection();
+
+        // Обновляем визуальное состояние кнопки
+        if (isEditMode) {
+            this.editColliderBtn.classList.add('active');
+            this.editColliderBtn.textContent = 'Exit Collider Edit';
+
+            // Автоматически показываем GLB если он скрыт
+            if (!this.app.editorController.isGLBVisible()) {
+                this.toggleGLBVisibility();
+            }
+        } else {
+            this.editColliderBtn.classList.remove('active');
+            this.editColliderBtn.textContent = 'Edit Collider';
+        }
+
+        console.log(`Collider edit mode: ${isEditMode ? 'ON' : 'OFF'}`);
+    }
+
     // Методы для сохранения/загрузки (пока закомментированы)
     /*
     saveScene() {
