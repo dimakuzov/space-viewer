@@ -21,6 +21,9 @@ export class UIController {
         // Кнопка переключения видимости GLB
         this.toggleGLBBtn = document.getElementById('toggleGLB');
 
+        // Кнопка редактирования коллайдера
+        this.editColliderBtn = document.getElementById('editCollider');
+
         // Прицел
         this.crosshair = document.getElementById('crosshair');
 
@@ -51,6 +54,11 @@ export class UIController {
         // Переключение видимости GLB
         this.toggleGLBBtn.addEventListener('click', () => {
             this.toggleGLBVisibility();
+        });
+
+        // Редактирование коллайдера
+        this.editColliderBtn.addEventListener('click', () => {
+            this.toggleColliderEditMode();
         });
 
         // Сохранение/загрузка (пока закомментировано)
