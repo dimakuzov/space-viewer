@@ -6,6 +6,7 @@ import {
     AmbientLight
 } from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { LumaSplatsThree } from '@lumaai/luma-web';
 
 // Импорт модулей
@@ -17,6 +18,7 @@ class LumaSceneApp {
     constructor() {
         this.isEditMode = false;
         this.placedObjects = [];
+        this.collisionMesh = null; // Невидимый mesh для коллизий
 
         this.initRenderer();
         this.initScene();
@@ -24,7 +26,7 @@ class LumaSceneApp {
         this.initLights();
         this.initControls();
         this.initControllers();
-        this.loadLumaScene();
+        this.loadAssets();
         this.bindEvents();
         this.startRenderLoop();
     }
@@ -75,20 +77,79 @@ class LumaSceneApp {
         this.uiController = new UIController(this);
     }
 
+    async loadAssets() {
+        try {
+            // Загружаем Luma splat для визуализации
+            await this.loadLumaScene();
+
+            // Загружаем GLB для коллизий
+            await this.loadCollisionMesh();
+
+        } catch (error) {
+            console.error('Failed to load assets:', error);
+        }
+    }
+
     async loadLumaScene() {
         try {
+            console.log('Loading Luma splat scene...');
             this.splat = new LumaSplatsThree({
                 source: 'https://lumalabs.ai/capture/20961f1d-3add-4382-a0f0-c0a6a53a5b45'
             });
             this.scene.add(this.splat);
 
-            // Передаем splat в editor для ray casting
-            this.editorController.setSplat(this.splat);
+            console.log('Luma splat scene loaded successfully');
         } catch (error) {
             console.error('Failed to load Luma scene:', error);
         }
     }
 
+    async loadCollisionMesh() {
+        return new Promise((resolve, reject) => {
+            console.log('Loading collision mesh...');
+
+            const loader = new GLTFLoader();
+
+            loader.load(
+                'assets/two-rooms.glb',
+                (gltf) => {
+                    console.log('GLB collision mesh loaded successfully');
+
+                    // Получаем mesh из GLB файла
+                    this.collisionMesh = gltf.scene;
+
+                    // Делаем mesh невидимым, но оставляем для ray casting
+                    this.collisionMesh.traverse((child) => {
+                        if (child.isMesh) {
+                            // Делаем материал невидимым
+                            child.visible = false;
+                            // Можно также установить transparent материал:
+                            // child.material.transparent = true;
+                            // child.material.opacity = 0;
+                        }
+                    });
+
+                    // Добавляем в сцену для ray casting
+                    this.scene.add(this.collisionMesh);
+
+                    // Передаем collision mesh в editor для ray casting
+                    this.editorController.setCollisionMesh(this.collisionMesh);
+
+                    console.log('Collision mesh setup complete');
+                    resolve();
+                },
+                (progress) => {
+                    const percentage = (progress.loaded / progress.total * 100).toFixed(1);
+                    console.log(`Loading collision mesh: ${percentage}%`);
+                },
+                (error) => {
+                    console.error('Failed to load collision mesh:', error);
+                    reject(error);
+                }
+            );
+        });
+    }
+    
     bindEvents() {
         // Обработка изменения размера окна
         window.addEventListener('resize', () => {
