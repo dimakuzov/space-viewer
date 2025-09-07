@@ -90,21 +90,6 @@ canvas {
     background: #E91E63 !important;
 }
 
-/* Кнопка редактирования коллайдера */
-.collider-edit {
-    background: #795548 !important;
-    width: 100% !important;
-    margin-top: 5px !important;
-}
-
-.collider-edit:hover {
-    background: #5D4037 !important;
-}
-
-.collider-edit.active {
-    background: #FF5722 !important;
-}
-
 .controls-info {
     font-size: 11px;
     opacity: 0.8;

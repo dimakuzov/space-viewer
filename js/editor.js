@@ -171,13 +171,6 @@ export class EditorController {
         return this.glbVisible;
     }
 
-    // Обновление (нужно вызывать в render loop)
-    update() {
-        if (this.colliderEditMode) {
-            this.updateColliderTransform();
-        }
-    }
-
     // Методы для сохранения/загрузки (пока закомментированы)
     /*
     exportScene() {

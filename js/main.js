@@ -187,9 +187,6 @@ class LumaSceneApp {
             // Обновление контроллеров
             if (!this.isEditMode) {
                 this.movementController.update();
-            } else {
-                // Обновляем editor контроллер в режиме редактирования
-                this.editorController.update();
             }
 
             // Рендеринг сцены
