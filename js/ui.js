@@ -1,5 +1,3 @@
-import {LumaSceneApp} from './main.js';
-
 export class UIController {
     constructor(app) {
         this.app = app;
@@ -78,15 +76,6 @@ export class UIController {
                 case 'KeyX':
                 case 'Delete':
                     this.selectObjectType('delete');
-                    break;
-                case 'KeyV':
-                    this.LumaSceneApp.toggleCollisionMeshVisibility();
-                    break;
-                case 'KeyR':
-                    this.resetCollisionMeshTransform();
-                    break;
-                case 'KeyO':
-                    this.saveCollisionMeshTransform();
                     break;
             }
         }
