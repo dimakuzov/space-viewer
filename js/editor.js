@@ -22,15 +22,111 @@ export class EditorController {
         this.collisionMesh = null; // GLB mesh для коллизий
         this.glbVisible = false; // Состояние видимости GLB
 
+        // New properties for collider editing
+        this.colliderEditMode = false;
+        this.colliderMoveSpeed = 0.05; // 5 cm per frame
+        this.colliderKeys = {
+            forward: false,
+            backward: false,
+            left: false,
+            right: false
+        };
+
         this.bindEvents();
     }
 
     bindEvents() {
         document.addEventListener('click', this.onClick.bind(this));
+        document.addEventListener('keydown', this.onKeyDown.bind(this));
+        document.addEventListener('keyup', this.onKeyUp.bind(this));
+    }
+
+    onKeyDown(event) {
+        if (!this.enabled || !this.colliderEditMode) return;
+
+        switch(event.code) {
+            case 'KeyW':
+                this.colliderKeys.forward = true;
+                event.preventDefault();
+                break;
+            case 'KeyS':
+                this.colliderKeys.backward = true;
+                event.preventDefault();
+                break;
+            case 'KeyA':
+                this.colliderKeys.left = true;
+                event.preventDefault();
+                break;
+            case 'KeyD':
+                this.colliderKeys.right = true;
+                event.preventDefault();
+                break;
+        }
+    }
+
+    onKeyUp(event) {
+        if (!this.enabled || !this.colliderEditMode) return;
+
+        switch(event.code) {
+            case 'KeyW':
+                this.colliderKeys.forward = false;
+                break;
+            case 'KeyS':
+                this.colliderKeys.backward = false;
+                break;
+            case 'KeyA':
+                this.colliderKeys.left = false;
+                break;
+            case 'KeyD':
+                this.colliderKeys.right = false;
+                break;
+        }
+    }
+
+    updateColliderMovement() {
+        if (!this.colliderEditMode || !this.collisionMesh) return;
+
+        const moveVector = new Vector3();
+
+        // Calculate movement based on camera direction
+        if (this.colliderKeys.forward || this.colliderKeys.backward) {
+            const forward = new Vector3();
+            this.camera.getWorldDirection(forward);
+            forward.y = 0; // Keep movement horizontal
+            forward.normalize();
+
+            if (this.colliderKeys.forward) {
+                moveVector.add(forward.multiplyScalar(this.colliderMoveSpeed));
+            }
+            if (this.colliderKeys.backward) {
+                moveVector.add(forward.multiplyScalar(-this.colliderMoveSpeed));
+            }
+        }
+
+        if (this.colliderKeys.left || this.colliderKeys.right) {
+            const right = new Vector3();
+            this.camera.getWorldDirection(right);
+            right.cross(this.camera.up);
+            right.y = 0; // Keep movement horizontal
+            right.normalize();
+
+            if (this.colliderKeys.right) {
+                moveVector.add(right.multiplyScalar(this.colliderMoveSpeed));
+            }
+            if (this.colliderKeys.left) {
+                moveVector.add(right.multiplyScalar(-this.colliderMoveSpeed));
+            }
+        }
+
+        // Apply movement to collision mesh
+        if (moveVector.length() > 0) {
+            this.collisionMesh.position.add(moveVector);
+            console.log(`Collider moved to: ${this.collisionMesh.position.x.toFixed(3)}, ${this.collisionMesh.position.y.toFixed(3)}, ${this.collisionMesh.position.z.toFixed(3)}`);
+        }
     }
 
     onClick(event) {
-        if (!this.enabled) return;
+        if (!this.enabled || this.colliderEditMode) return;
 
         // Вычисляем координаты мыши в нормализованном пространстве
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -169,5 +265,35 @@ export class EditorController {
     // Метод для получения текущего состояния видимости GLB
     isGLBVisible() {
         return this.glbVisible;
+    }
+
+    // New methods for collider editing
+    setColliderEditMode(enabled) {
+        this.colliderEditMode = enabled;
+
+        // Reset all keys when disabling
+        if (!enabled) {
+            Object.keys(this.colliderKeys).forEach(key => {
+                this.colliderKeys[key] = false;
+            });
+        }
+
+        console.log(`Collider edit mode: ${enabled ? 'ON' : 'OFF'}`);
+
+        // Make GLB visible when in collider edit mode
+        if (enabled && this.collisionMesh && !this.glbVisible) {
+            this.toggleGLBVisibility();
+        }
+    }
+
+    isColliderEditMode() {
+        return this.colliderEditMode;
+    }
+
+    // Method to be called in the render loop
+    update() {
+        if (this.enabled && this.colliderEditMode) {
+            this.updateColliderMovement();
+        }
     }
 }

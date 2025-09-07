@@ -90,6 +90,22 @@ canvas {
     background: #E91E63 !important;
 }
 
+/* New: Collider Edit button styles */
+.collider-edit-toggle {
+    background: #FF5722 !important;
+    width: 100% !important;
+    margin-top: 5px !important;
+}
+
+.collider-edit-toggle:hover {
+    background: #E64A19 !important;
+}
+
+.collider-edit-toggle.active {
+    background: #FFC107 !important;
+    color: #000 !important;
+}
+
 .controls-info {
     font-size: 11px;
     opacity: 0.8;

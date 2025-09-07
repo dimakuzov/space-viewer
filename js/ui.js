@@ -21,6 +21,9 @@ export class UIController {
         // Кнопка переключения видимости GLB
         this.toggleGLBBtn = document.getElementById('toggleGLB');
 
+        // New: Edit Collider button
+        this.editColliderBtn = document.getElementById('editCollider');
+
         // Прицел
         this.crosshair = document.getElementById('crosshair');
 
@@ -51,6 +54,11 @@ export class UIController {
         // Переключение видимости GLB
         this.toggleGLBBtn.addEventListener('click', () => {
             this.toggleGLBVisibility();
+        });
+
+        // New: Edit Collider button
+        this.editColliderBtn.addEventListener('click', () => {
+            this.toggleEditCollider();
         });
 
         // Сохранение/загрузка (пока закомментировано)
@@ -88,6 +96,9 @@ export class UIController {
                 case 'KeyV':
                     this.toggleGLBVisibility();
                     break;
+                case 'KeyC':
+                    this.toggleEditCollider();
+                    break;
             }
         }
     }
@@ -103,6 +114,10 @@ export class UIController {
 
         // Очистка выделения инструментов
         this.clearObjectToolSelection();
+
+        // Disable collider edit mode when switching to view mode
+        this.app.editorController.setColliderEditMode(false);
+        this.updateEditColliderButton();
 
         console.log('Switched to View Mode');
     }
@@ -123,6 +138,12 @@ export class UIController {
     }
 
     selectObjectType(type) {
+        // Disable collider edit mode when selecting object tools
+        if (this.app.editorController.isColliderEditMode()) {
+            this.app.editorController.setColliderEditMode(false);
+            this.updateEditColliderButton();
+        }
+
         this.app.editorController.setSelectedObjectType(type);
 
         // Обновление визуального состояния кнопок
@@ -157,5 +178,39 @@ export class UIController {
         }
 
         console.log(`GLB visibility toggled: ${isVisible ? 'visible' : 'hidden'}`);
+    }
+
+    // New method for toggling edit collider mode
+    toggleEditCollider() {
+        const isCurrentlyEditing = this.app.editorController.isColliderEditMode();
+        const newState = !isCurrentlyEditing;
+
+        this.app.editorController.setColliderEditMode(newState);
+
+        // Clear object tool selection when entering collider edit mode
+        if (newState) {
+            this.clearObjectToolSelection();
+            // Hide crosshair in collider edit mode
+            this.crosshair.style.display = 'none';
+        } else {
+            // Show crosshair when exiting collider edit mode
+            this.crosshair.style.display = 'block';
+        }
+
+        this.updateEditColliderButton();
+
+        console.log(`Edit Collider mode: ${newState ? 'ON' : 'OFF'}`);
+    }
+
+    updateEditColliderButton() {
+        const isEditing = this.app.editorController.isColliderEditMode();
+
+        if (isEditing) {
+            this.editColliderBtn.classList.add('active');
+            this.editColliderBtn.textContent = 'Exit Collider Edit';
+        } else {
+            this.editColliderBtn.classList.remove('active');
+            this.editColliderBtn.textContent = 'Edit Collider';
+        }
     }
 }
