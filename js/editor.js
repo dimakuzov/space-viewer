@@ -29,7 +29,11 @@ export class EditorController {
             forward: false,
             backward: false,
             left: false,
-            right: false
+            right: false,
+            scaleUp: false,
+            scaleDown: false,
+            rotateLeft: false,
+            rotateRight: false
         };
 
         this.bindEvents();
@@ -61,6 +65,22 @@ export class EditorController {
                 this.colliderKeys.right = true;
                 event.preventDefault();
                 break;
+            case 'KeyQ':
+                this.colliderKeys.scaleDown = true;
+                event.preventDefault();
+                break;
+            case 'KeyE':
+                this.colliderKeys.scaleUp = true;
+                event.preventDefault();
+                break;
+            case 'KeyR':
+                this.colliderKeys.rotateLeft = true;
+                event.preventDefault();
+                break;
+            case 'KeyT':
+                this.colliderKeys.rotateRight = true;
+                event.preventDefault();
+                break;
         }
     }
 
@@ -80,6 +100,18 @@ export class EditorController {
             case 'KeyD':
                 this.colliderKeys.right = false;
                 break;
+            case 'KeyQ':
+                this.colliderKeys.scaleDown = false;
+                break;
+            case 'KeyE':
+                this.colliderKeys.scaleUp = false;
+                break;
+            case 'KeyR':
+                this.colliderKeys.rotateLeft = false;
+                break;
+            case 'KeyT':
+                this.colliderKeys.rotateRight = false;
+                break;
         }
     }
 
@@ -87,8 +119,10 @@ export class EditorController {
         if (!this.colliderEditMode || !this.collisionMesh) return;
 
         const moveVector = new Vector3();
+        let scaleChanged = false;
+        let rotationChanged = false;
 
-        // Calculate movement based on camera direction
+        // Handle movement (WASD)
         if (this.colliderKeys.forward || this.colliderKeys.backward) {
             const forward = new Vector3();
             this.camera.getWorldDirection(forward);
@@ -118,10 +152,51 @@ export class EditorController {
             }
         }
 
+        // Handle scaling (QE)
+        if (this.colliderKeys.scaleUp || this.colliderKeys.scaleDown) {
+            const currentScale = this.collisionMesh.scale.x; // Assuming uniform scaling
+            let newScale = currentScale;
+
+            if (this.colliderKeys.scaleUp) {
+                newScale = currentScale * (1 + this.colliderScaleSpeed);
+            }
+            if (this.colliderKeys.scaleDown) {
+                newScale = currentScale * (1 - this.colliderScaleSpeed);
+            }
+
+            // Prevent negative or zero scaling
+            if (newScale > 0.1) {
+                this.collisionMesh.scale.setScalar(newScale);
+                scaleChanged = true;
+            }
+        }
+
+        // Handle rotation (RT)
+        if (this.colliderKeys.rotateLeft || this.colliderKeys.rotateRight) {
+            if (this.colliderKeys.rotateLeft) {
+                this.collisionMesh.rotation.y += this.colliderRotationSpeed;
+            }
+            if (this.colliderKeys.rotateRight) {
+                this.collisionMesh.rotation.y -= this.colliderRotationSpeed;
+            }
+            rotationChanged = true;
+        }
+
         // Apply movement to collision mesh
         if (moveVector.length() > 0) {
             this.collisionMesh.position.add(moveVector);
             console.log(`Collider moved to: ${this.collisionMesh.position.x.toFixed(3)}, ${this.collisionMesh.position.y.toFixed(3)}, ${this.collisionMesh.position.z.toFixed(3)}`);
+        }
+
+        // Log scale changes
+        if (scaleChanged) {
+            console.log(`Collider scale: ${this.collisionMesh.scale.x.toFixed(4)}`);
+        }
+
+        // Log rotation changes
+        if (rotationChanged) {
+            const rotationDegrees = (this.collisionMesh.rotation.y * 180 / Math.PI) % 360;
+            console.log(`Collider rotation: ${rotationDegrees.toFixed(2)}°`);
         }
     }
 
