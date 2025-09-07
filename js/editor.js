@@ -20,6 +20,7 @@ export class EditorController {
         this.selectedObjectType = 'cube';
         this.splat = null;
         this.collisionMesh = null; // GLB mesh для коллизий
+        this.glbVisible = false; // Состояние видимости GLB
 
         this.bindEvents();
     }
@@ -138,12 +139,36 @@ export class EditorController {
 
     setEnabled(enabled) {
         this.enabled = enabled;
-        console.log('Splat set for editor');
+        console.log('Editor enabled:', enabled);
     }
 
     setCollisionMesh(collisionMesh) {
         this.collisionMesh = collisionMesh;
         console.log('Collision mesh set for editor');
+    }
+
+    // Новый метод для переключения видимости GLB
+    toggleGLBVisibility() {
+        if (!this.collisionMesh) {
+            console.warn('No collision mesh loaded');
+            return false;
+        }
+
+        this.glbVisible = !this.glbVisible;
+
+        this.collisionMesh.traverse((child) => {
+            if (child.isMesh) {
+                child.visible = this.glbVisible;
+            }
+        });
+
+        console.log(`GLB visibility: ${this.glbVisible ? 'ON' : 'OFF'}`);
+        return this.glbVisible;
+    }
+
+    // Метод для получения текущего состояния видимости GLB
+    isGLBVisible() {
+        return this.glbVisible;
     }
 
     // Методы для сохранения/загрузки (пока закомментированы)

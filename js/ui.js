@@ -18,6 +18,9 @@ export class UIController {
         this.addCubeBtn = document.getElementById('addCube');
         this.deleteObjectBtn = document.getElementById('deleteObject');
 
+        // Кнопка переключения видимости GLB
+        this.toggleGLBBtn = document.getElementById('toggleGLB');
+
         // Прицел
         this.crosshair = document.getElementById('crosshair');
 
@@ -43,6 +46,11 @@ export class UIController {
 
         this.deleteObjectBtn.addEventListener('click', () => {
             this.selectObjectType('delete');
+        });
+
+        // Переключение видимости GLB
+        this.toggleGLBBtn.addEventListener('click', () => {
+            this.toggleGLBVisibility();
         });
 
         // Сохранение/загрузка (пока закомментировано)
@@ -76,6 +84,9 @@ export class UIController {
                 case 'KeyX':
                 case 'Delete':
                     this.selectObjectType('delete');
+                    break;
+                case 'KeyV':
+                    this.toggleGLBVisibility();
                     break;
             }
         }
@@ -130,6 +141,22 @@ export class UIController {
     clearObjectToolSelection() {
         [this.addCubeBtn, this.deleteObjectBtn]
             .forEach(btn => btn.classList.remove('active'));
+    }
+
+    // Новый метод для переключения видимости GLB
+    toggleGLBVisibility() {
+        const isVisible = this.app.editorController.toggleGLBVisibility();
+
+        // Обновляем визуальное состояние кнопки
+        if (isVisible) {
+            this.toggleGLBBtn.classList.add('active');
+            this.toggleGLBBtn.textContent = 'Hide GLB';
+        } else {
+            this.toggleGLBBtn.classList.remove('active');
+            this.toggleGLBBtn.textContent = 'Show GLB';
+        }
+
+        console.log(`GLB visibility toggled: ${isVisible ? 'visible' : 'hidden'}`);
     }
 
     // Методы для сохранения/загрузки (пока закомментированы)

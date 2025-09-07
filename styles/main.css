@@ -75,6 +75,21 @@ canvas {
     background: #FF9800;
 }
 
+/* Специальная кнопка для GLB */
+.glb-toggle {
+    background: #9C27B0 !important;
+    width: 100% !important;
+    margin-top: 5px !important;
+}
+
+.glb-toggle:hover {
+    background: #7B1FA2 !important;
+}
+
+.glb-toggle.active {
+    background: #E91E63 !important;
+}
+
 .controls-info {
     font-size: 11px;
     opacity: 0.8;
