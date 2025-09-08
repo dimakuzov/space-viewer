@@ -179,18 +179,6 @@ export class EditorController {
             if (this.colliderKeys.down) {
                 moveVector.add(vertical.clone().multiplyScalar(-this.colliderMoveSpeed));
             }
-//            const up = new Vector3();
-//            this.camera.getWorldDirection(up);
-//            up.cross(this.camera.up);
-//            up.y = 0; // Keep movement horizontal
-//            up.normalize();
-//
-//            if (this.colliderKeys.up) {
-//                moveVector.add(up.multiplyScalar(this.colliderMoveSpeed));
-//            }
-//            if (this.colliderKeys.down) {
-//                moveVector.add(up.multiplyScalar(-this.colliderMoveSpeed));
-//            }
         }
 
         // Handle scaling (QE)
