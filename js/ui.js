@@ -7,19 +7,18 @@ export class UIController {
     }
 
     initElements() {
-        // Кнопки режимов
+        // Mode buttons
         this.viewModeBtn = document.getElementById('viewMode');
         this.editModeBtn = document.getElementById('editMode');
 
-        // Панель инструментов
+        // Tools panel
         this.objectTools = document.getElementById('objectTools');
 
-        // Кнопки объектов
-        this.addCubeBtn = document.getElementById('addCube');
-        this.addTextPanelBtn = document.getElementById('addTextPanel');
+        // Object buttons - update for panels
+        this.addPanelBtn = document.getElementById('addCube'); // Reuse the button
         this.deleteObjectBtn = document.getElementById('deleteObject');
 
-        // Кнопка переключения видимости GLB
+        // GLB visibility toggle
         this.toggleGLBBtn = document.getElementById('toggleGLB');
 
         // Edit Collider button
@@ -28,12 +27,17 @@ export class UIController {
         // Save Transform button
         this.saveTransformBtn = document.getElementById('saveTransform');
 
-        // Прицел
+        // Crosshair
         this.crosshair = document.getElementById('crosshair');
+
+        // Update button text for panels
+        if (this.addPanelBtn) {
+            this.addPanelBtn.textContent = 'Add Panel';
+        }
     }
 
     bindEvents() {
-        // Переключение режимов
+        // Mode switching
         this.viewModeBtn.addEventListener('click', () => {
             this.setViewMode();
         });
@@ -42,20 +46,16 @@ export class UIController {
             this.setEditMode();
         });
 
-        // Инструменты редактирования
-        this.addCubeBtn.addEventListener('click', () => {
-            this.selectObjectType('cube');
-        });
-
-        this.addTextPanelBtn.addEventListener('click', () => {
-            this.selectObjectType('textPanel');
+        // Editing tools
+        this.addPanelBtn.addEventListener('click', () => {
+            this.selectObjectType('panel');
         });
 
         this.deleteObjectBtn.addEventListener('click', () => {
             this.selectObjectType('delete');
         });
 
-        // Переключение видимости GLB
+        // GLB visibility toggle
         this.toggleGLBBtn.addEventListener('click', () => {
             this.toggleGLBVisibility();
         });
@@ -70,25 +70,27 @@ export class UIController {
             this.saveColliderTransform();
         });
 
-        // Горячие клавиши
+        // Hotkeys
         document.addEventListener('keydown', this.onKeyDown.bind(this));
     }
 
     onKeyDown(event) {
-        // Переключение режимов на Tab
+        // Don't process hotkeys if panel editor is active
+        if (this.app.panelEditor && this.app.panelEditor.isEditing()) {
+            return;
+        }
+
+        // Tab to switch modes
         if (event.code === 'Tab') {
             event.preventDefault();
             this.app.isEditMode ? this.setViewMode() : this.setEditMode();
         }
 
-        // Горячие клавиши для объектов в режиме редактирования
+        // Hotkeys for edit mode
         if (this.app.isEditMode) {
             switch(event.code) {
                 case 'Digit1':
-                    this.selectObjectType('cube');
-                    break;
-                case 'Digit2':
-                    this.selectObjectType('textPanel');
+                    this.selectObjectType('panel');
                     break;
                 case 'KeyX':
                 case 'Delete':
@@ -113,16 +115,16 @@ export class UIController {
     setViewMode() {
         this.app.setEditMode(false);
 
-        // Обновление UI
+        // Update UI
         this.viewModeBtn.classList.add('active');
         this.editModeBtn.classList.remove('active');
         this.objectTools.style.display = 'none';
         this.crosshair.style.display = 'none';
 
-        // Очистка выделения инструментов
+        // Clear tool selection
         this.clearObjectToolSelection();
 
-        // Disable collider edit mode when switching to view mode
+        // Disable collider edit mode
         this.app.editorController.setColliderEditMode(false);
         this.updateEditColliderButton();
 
@@ -132,14 +134,14 @@ export class UIController {
     setEditMode() {
         this.app.setEditMode(true);
 
-        // Обновление UI
+        // Update UI
         this.editModeBtn.classList.add('active');
         this.viewModeBtn.classList.remove('active');
         this.objectTools.style.display = 'block';
         this.crosshair.style.display = 'block';
 
-        // Выбираем куб по умолчанию
-        this.selectObjectType('cube');
+        // Select panel by default
+        this.selectObjectType('panel');
 
         console.log('Switched to Edit Mode');
     }
@@ -151,23 +153,14 @@ export class UIController {
             this.updateEditColliderButton();
         }
 
-        if (type === 'textPanel') {
-            // Create text panel at camera position
-            this.app.createTextPanelAtCamera();
-            // Don't set editor object type for text panels
-            this.clearObjectToolSelection();
-            this.addTextPanelBtn.classList.add('active');
-            return;
-        }
-
         this.app.editorController.setSelectedObjectType(type);
 
-        // Обновление визуального состояния кнопок
+        // Update button visual states
         this.clearObjectToolSelection();
 
         switch(type) {
-            case 'cube':
-                this.addCubeBtn.classList.add('active');
+            case 'panel':
+                this.addPanelBtn.classList.add('active');
                 break;
             case 'delete':
                 this.deleteObjectBtn.classList.add('active');
@@ -176,15 +169,14 @@ export class UIController {
     }
 
     clearObjectToolSelection() {
-        [this.addCubeBtn, this.addTextPanelBtn, this.deleteObjectBtn]
+        [this.addPanelBtn, this.deleteObjectBtn]
             .forEach(btn => btn.classList.remove('active'));
     }
 
-    // Новый метод для переключения видимости GLB
     toggleGLBVisibility() {
         const isVisible = this.app.editorController.toggleGLBVisibility();
 
-        // Обновляем визуальное состояние кнопки
+        // Update button visual state
         if (isVisible) {
             this.toggleGLBBtn.classList.add('active');
             this.toggleGLBBtn.textContent = 'Hide GLB';
@@ -196,7 +188,6 @@ export class UIController {
         console.log(`GLB visibility toggled: ${isVisible ? 'visible' : 'hidden'}`);
     }
 
-    // Method for toggling edit collider mode
     toggleEditCollider() {
         const isCurrentlyEditing = this.app.editorController.isColliderEditMode();
         const newState = !isCurrentlyEditing;
@@ -206,10 +197,8 @@ export class UIController {
         // Clear object tool selection when entering collider edit mode
         if (newState) {
             this.clearObjectToolSelection();
-            // Hide crosshair in collider edit mode
             this.crosshair.style.display = 'none';
         } else {
-            // Show crosshair when exiting collider edit mode
             this.crosshair.style.display = 'block';
         }
 
@@ -230,12 +219,11 @@ export class UIController {
         }
     }
 
-    // Method: Save collider transform and text panels
     saveColliderTransform() {
         const success = this.app.saveColliderTransform();
 
         if (success) {
-            // Provide visual feedback
+            // Visual feedback
             const originalText = this.saveTransformBtn.textContent;
             this.saveTransformBtn.textContent = 'Saved!';
             this.saveTransformBtn.style.background = '#4CAF50';
@@ -245,9 +233,9 @@ export class UIController {
                 this.saveTransformBtn.style.background = '';
             }, 1500);
 
-            console.log('Data saved successfully');
+            console.log('Collider transform saved successfully');
         } else {
-            // Show error feedback
+            // Error feedback
             const originalText = this.saveTransformBtn.textContent;
             this.saveTransformBtn.textContent = 'Error!';
             this.saveTransformBtn.style.background = '#f44336';
@@ -257,7 +245,7 @@ export class UIController {
                 this.saveTransformBtn.style.background = '';
             }, 1500);
 
-            console.error('Failed to save data');
+            console.error('Failed to save collider transform');
         }
     }
 }

@@ -3,8 +3,7 @@ import {
     PerspectiveCamera,
     Scene,
     DirectionalLight,
-    AmbientLight,
-    Vector3
+    AmbientLight
 } from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -15,13 +14,15 @@ import { MovementController } from './movement.js';
 import { EditorController } from './editor.js';
 import { UIController } from './ui.js';
 import { SaveLoadController } from './saveLoad.js';
-import { TextPanelController } from './textPanel.js';
+import { PanelObject } from './panel.js';
+import { PanelEditor } from './panelEditor.js';
 
 class LumaSceneApp {
     constructor() {
         this.isEditMode = false;
         this.placedObjects = [];
-        this.collisionMesh = null; // Invisible mesh for collisions
+        this.panels = new Map(); // Store panel objects by their group
+        this.collisionMesh = null;
 
         this.initRenderer();
         this.initScene();
@@ -59,7 +60,6 @@ class LumaSceneApp {
     }
 
     initLights() {
-        // Lighting for 3D objects
         const ambientLight = new AmbientLight(0x404040, 0.6);
         this.scene.add(ambientLight);
 
@@ -74,26 +74,95 @@ class LumaSceneApp {
     }
 
     initControllers() {
-        // Initialize controllers
         this.movementController = new MovementController(this.camera, this.pointerLockControls);
-        this.editorController = new EditorController(this.scene, this.camera, this.placedObjects);
-        this.textPanelController = new TextPanelController(this.scene, this.camera, this.renderer);
+        this.panelEditor = new PanelEditor(this.scene, this.camera);
+        this.editorController = new EditorController(this.scene, this.camera, this.placedObjects, this.panelEditor);
         this.saveLoadController = new SaveLoadController();
-
-        // Connect text panel controller to save/load system
-        this.saveLoadController.setTextPanelController(this.textPanelController);
-
         this.uiController = new UIController(this);
+
+        // Bind panel events
+        this.bindPanelEvents();
+    }
+
+    bindPanelEvents() {
+        // Listen for panel creation events
+        document.addEventListener('panelCreate', (event) => {
+            this.createPanel(event.detail.position);
+        });
+
+        // Listen for panel edit events
+        document.addEventListener('panelEdit', (event) => {
+            const panelGroup = event.detail.panelGroup;
+            const panel = this.panels.get(panelGroup);
+            if (panel) {
+                this.panelEditor.startEdit(panel);
+            }
+        });
+
+        // Listen for panel deletion events
+        document.addEventListener('panelDelete', (event) => {
+            this.deletePanel(event.detail.panel);
+        });
+
+        // Listen for object deletion events
+        document.addEventListener('objectDelete', (event) => {
+            this.deleteObject(event.detail.object);
+        });
+    }
+
+    createPanel(position, text = 'New Panel') {
+        const panel = new PanelObject(position, text);
+        const group = panel.getGroup();
+
+        this.scene.add(group);
+        this.placedObjects.push(group);
+        this.panels.set(group, panel);
+
+        console.log('Panel created at:', position);
+        return panel;
+    }
+
+    deletePanel(panel) {
+        const group = panel.getGroup();
+
+        // Remove from scene
+        this.scene.remove(group);
+
+        // Remove from placed objects
+        const index = this.placedObjects.indexOf(group);
+        if (index > -1) {
+            this.placedObjects.splice(index, 1);
+        }
+
+        // Remove from panels map
+        this.panels.delete(group);
+
+        // Dispose resources
+        panel.dispose();
+
+        console.log('Panel deleted');
+    }
+
+    deleteObject(object) {
+        // Check if it's a panel
+        const panel = this.panels.get(object);
+        if (panel) {
+            this.deletePanel(panel);
+            return;
+        }
+
+        // Handle other object types
+        this.scene.remove(object);
+        const index = this.placedObjects.indexOf(object);
+        if (index > -1) {
+            this.placedObjects.splice(index, 1);
+        }
     }
 
     async loadAssets() {
         try {
-            // Load Luma splat for visualization
             await this.loadLumaScene();
-
-            // Load GLB for collisions
             await this.loadCollisionMesh();
-
         } catch (error) {
             console.error('Failed to load assets:', error);
         }
@@ -106,7 +175,6 @@ class LumaSceneApp {
                 source: 'https://lumalabs.ai/capture/20961f1d-3add-4382-a0f0-c0a6a53a5b45'
             });
             this.scene.add(this.splat);
-
             console.log('Luma splat scene loaded successfully');
         } catch (error) {
             console.error('Failed to load Luma scene:', error);
@@ -124,27 +192,16 @@ class LumaSceneApp {
                 (gltf) => {
                     console.log('GLB collision mesh loaded successfully');
 
-                    // Get mesh from GLB file
                     this.collisionMesh = gltf.scene;
 
-                    // Make mesh invisible but keep for ray casting
                     this.collisionMesh.traverse((child) => {
                         if (child.isMesh) {
-                            // Make material invisible
                             child.visible = false;
-                            // Can also set transparent material:
-                            // child.material.transparent = true;
-                            // child.material.opacity = 0;
                         }
                     });
 
-                    // Add to scene for ray casting
                     this.scene.add(this.collisionMesh);
-
-                    // Pass collision mesh to editor for ray casting
                     this.editorController.setCollisionMesh(this.collisionMesh);
-
-                    // Pass collision mesh to save/load controller
                     this.saveLoadController.setCollisionMesh(this.collisionMesh);
 
                     console.log('Collision mesh setup complete');
@@ -163,7 +220,6 @@ class LumaSceneApp {
     }
     
     bindEvents() {
-        // Handle window resize
         window.addEventListener('resize', () => {
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
@@ -175,7 +231,11 @@ class LumaSceneApp {
         this.isEditMode = isEdit;
         this.movementController.setEnabled(!isEdit);
         this.editorController.setEnabled(isEdit);
-        this.textPanelController.setEnabled(isEdit);
+
+        // Exit panel editing when switching modes
+        if (!isEdit && this.panelEditor.isEditing()) {
+            this.panelEditor.cancelEdit();
+        }
     }
 
     getPlacedObjects() {
@@ -195,37 +255,43 @@ class LumaSceneApp {
         }
     }
 
-    // New method: Create text panel
-    createTextPanel(position, text = "Sample Text") {
-        return this.textPanelController.createPanel(position, text);
+    // Panel-related methods
+    getPanels() {
+        return Array.from(this.panels.values());
     }
 
-    // New method: Create text panel at camera position (for UI button)
-    createTextPanelAtCamera() {
-        // Calculate position in front of camera
-        const direction = new Vector3();
-        this.camera.getWorldDirection(direction);
-        const position = this.camera.position.clone().add(direction.multiplyScalar(2));
-
-        return this.createTextPanel(position, "New Text Panel");
+    savePanelsData() {
+        const panelsData = this.getPanels().map(panel => panel.toJSON());
+        return panelsData;
     }
 
-    // New method: Save collider transform
+    loadPanelsData(panelsData) {
+        // Clear existing panels
+        this.panels.forEach(panel => this.deletePanel(panel));
+
+        // Load panels from data
+        panelsData.forEach(data => {
+            const panel = PanelObject.fromJSON(data);
+            const group = panel.getGroup();
+
+            this.scene.add(group);
+            this.placedObjects.push(group);
+            this.panels.set(group, panel);
+        });
+    }
+
     saveColliderTransform() {
         return this.saveLoadController.saveTransform();
     }
 
-    // New method: Load collider transform
     loadColliderTransform() {
         return this.saveLoadController.loadTransform();
     }
 
-    // New method: Reset collider transform
     resetColliderTransform() {
         return this.saveLoadController.resetTransform();
     }
 
-    // New method: Get current collider transform (for debugging)
     getCurrentColliderTransform() {
         return this.saveLoadController.getCurrentTransform();
     }
@@ -236,14 +302,14 @@ class LumaSceneApp {
             if (!this.isEditMode) {
                 this.movementController.update();
             } else {
-                // Update editor controller for collider movement
                 this.editorController.update();
-                // Update text panel controller for panel movement and billboard effect
-                this.textPanelController.update();
+                this.panelEditor.update();
             }
 
-            // Always update text panel billboards (even in view mode)
-            this.textPanelController.updatePanelBillboards();
+            // Make all panels face the camera
+            this.panels.forEach(panel => {
+                panel.lookAtCamera(this.camera);
+            });
 
             // Render scene
             this.renderer.render(this.scene, this.camera);

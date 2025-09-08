@@ -63,9 +63,8 @@ canvas {
     margin: 2px;
     border-radius: 4px;
     cursor: pointer;
-    width: calc(33% - 4px);
+    width: calc(50% - 4px);
     transition: background 0.3s;
-    font-size: 11px;
 }
 
 .object-tools button:hover {
@@ -76,12 +75,11 @@ canvas {
     background: #FF9800;
 }
 
-/* Специальная кнопка для GLB */
+/* GLB toggle button */
 .glb-toggle {
     background: #9C27B0 !important;
     width: 100% !important;
     margin-top: 5px !important;
-    font-size: 12px !important;
 }
 
 .glb-toggle:hover {
@@ -97,7 +95,6 @@ canvas {
     background: #FF5722 !important;
     width: 100% !important;
     margin-top: 5px !important;
-    font-size: 12px !important;
 }
 
 .collider-edit-toggle:hover {
@@ -114,7 +111,6 @@ canvas {
     background: #4CAF50 !important;
     width: 100% !important;
     margin-top: 5px !important;
-    font-size: 12px !important;
 }
 
 .save-transform-btn:hover {
@@ -182,23 +178,37 @@ canvas {
     margin-left: -1px;
 }
 
-/* Text Panel Edit UI Styles */
-#panelEditUI {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+/* Panel editing UI styles */
+.panel-edit-buttons {
+    font-family: Arial, sans-serif;
 }
 
-#panelEditUI textarea {
-    font-size: 14px;
-    line-height: 1.4;
+.panel-text-overlay {
+    font-family: Arial, sans-serif;
 }
 
-#panelEditUI textarea:focus {
-    outline: 2px solid #4CAF50;
+.panel-text-overlay textarea {
+    font-family: Arial, sans-serif;
+}
+
+.panel-text-overlay textarea:focus {
+    outline: none;
     border-color: #4CAF50;
 }
 
-#panelEditUI button:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-    transition: all 0.2s ease;
+/* Additional responsive styles for panel editing */
+@media (max-width: 600px) {
+    .panel-text-overlay > div {
+        width: 95% !important;
+        margin: 0 auto;
+    }
+
+    .panel-edit-buttons {
+        flex-direction: column;
+        gap: 4px !important;
+    }
+
+    .panel-edit-buttons button {
+        width: 100% !important;
+    }
 }

@@ -1,30 +1,30 @@
 import {
     Raycaster,
     Vector2,
-    Vector3,
-    BoxGeometry,
-    MeshStandardMaterial,
-    Mesh
+    Vector3
 } from 'three';
 
+import { PanelObject } from './panel.js';
+
 export class EditorController {
-    constructor(scene, camera, placedObjects) {
+    constructor(scene, camera, placedObjects, panelEditor) {
         this.scene = scene;
         this.camera = camera;
         this.placedObjects = placedObjects;
+        this.panelEditor = panelEditor;
         this.enabled = false;
 
         this.raycaster = new Raycaster();
         this.mouse = new Vector2();
 
-        this.selectedObjectType = 'cube';
+        this.selectedObjectType = 'panel';
         this.splat = null;
-        this.collisionMesh = null; // GLB mesh для коллизий
-        this.glbVisible = false; // Состояние видимости GLB
+        this.collisionMesh = null;
+        this.glbVisible = false;
 
-        // New properties for collider editing
+        // Collider editing properties
         this.colliderEditMode = false;
-        this.colliderMoveSpeed = 0.03; // 5 cm per frame
+        this.colliderMoveSpeed = 0.03;
         this.colliderScaleSpeed = 0.01;
         this.colliderRotationSpeed = 0.01;
         this.colliderKeys = {
@@ -144,7 +144,7 @@ export class EditorController {
         if (this.colliderKeys.forward || this.colliderKeys.backward) {
             const forward = new Vector3();
             this.camera.getWorldDirection(forward);
-            forward.y = 0; // Keep movement horizontal
+            forward.y = 0;
             forward.normalize();
 
             if (this.colliderKeys.forward) {
@@ -159,7 +159,7 @@ export class EditorController {
             const right = new Vector3();
             this.camera.getWorldDirection(right);
             right.cross(this.camera.up);
-            right.y = 0; // Keep movement horizontal
+            right.y = 0;
             right.normalize();
 
             if (this.colliderKeys.right) {
@@ -171,7 +171,7 @@ export class EditorController {
         }
 
         if (this.colliderKeys.up || this.colliderKeys.down) {
-            const vertical = new Vector3(0, 1, 0); // world up
+            const vertical = new Vector3(0, 1, 0);
 
             if (this.colliderKeys.up) {
                 moveVector.add(vertical.clone().multiplyScalar(this.colliderMoveSpeed));
@@ -181,10 +181,9 @@ export class EditorController {
             }
         }
 
-        // Handle scaling (QE)
+        // Handle scaling
         if (this.colliderKeys.scaleUp || this.colliderKeys.scaleDown) {
-
-            const currentScale = this.collisionMesh.scale.x; // Assuming uniform scaling
+            const currentScale = this.collisionMesh.scale.x;
             let newScale = currentScale;
 
             if (this.colliderKeys.scaleUp) {
@@ -196,16 +195,14 @@ export class EditorController {
                 console.log(`Scaling Down: ${currentScale.toFixed(4)} -> ${newScale.toFixed(4)}`);
             }
 
-            // Prevent negative or zero scaling
             if (newScale > 0.01) {
                 this.collisionMesh.scale.setScalar(newScale);
                 scaleChanged = true;
             }
         }
 
-        // Handle rotation (RT)
+        // Handle rotation
         if (this.colliderKeys.rotateLeft || this.colliderKeys.rotateRight) {
-
             if (this.colliderKeys.rotateLeft) {
                 this.collisionMesh.rotation.y += this.colliderRotationSpeed;
             }
@@ -215,22 +212,19 @@ export class EditorController {
             rotationChanged = true;
         }
 
-        // Apply movement to collision mesh
+        // Apply movement
         if (moveVector.length() > 0) {
             this.collisionMesh.position.add(moveVector);
             console.log(`Collider moved to: ${this.collisionMesh.position.x.toFixed(3)}, ${this.collisionMesh.position.y.toFixed(3)}, ${this.collisionMesh.position.z.toFixed(3)}`);
         }
 
-        // Log scale changes
         if (scaleChanged) {
             console.log(`Collider scale: ${this.collisionMesh.scale.x.toFixed(4)}`);
         }
 
-        // Log rotation changes
         if (rotationChanged) {
             const rotationRadians = this.collisionMesh.rotation.y;
             const rotationDegrees = (rotationRadians * 180 / Math.PI);
-            // Normalize to 0-360 range
             const normalizedDegrees = ((rotationDegrees % 360) + 360) % 360;
             console.log(`Collider rotation: ${normalizedDegrees.toFixed(2)}° (${rotationRadians.toFixed(4)} rad)`);
         }
@@ -239,13 +233,6 @@ export class EditorController {
     onClick(event) {
         if (!this.enabled || this.colliderEditMode) return;
 
-        // Skip if this is a text panel interaction
-        if (this.selectedObjectType === 'textPanel') {
-            // Text panel clicks are handled by TextPanelController
-            return;
-        }
-
-        // Вычисляем координаты мыши в нормализованном пространстве
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -253,17 +240,62 @@ export class EditorController {
 
         if (this.selectedObjectType === 'delete') {
             this.deleteObject();
-        } else {
-            this.placeObject();
+        } else if (this.selectedObjectType === 'panel') {
+            // Check if we clicked on an existing panel first
+            const panelClicked = this.checkPanelClick();
+            if (!panelClicked) {
+                this.placePanel();
+            }
         }
     }
 
-    placeObject() {
-        // Создаем список объектов для ray casting
+    checkPanelClick() {
+        // Get all panel meshes
+        const panelMeshes = [];
+        this.placedObjects.forEach(obj => {
+            if (obj.userData && obj.userData.type === 'panel') {
+                // Find the mesh within the panel group
+                obj.traverse((child) => {
+                    if (child.isMesh) {
+                        panelMeshes.push(child);
+                    }
+                });
+            }
+        });
+
+        const intersects = this.raycaster.intersectObjects(panelMeshes);
+
+        if (intersects.length > 0) {
+            // Find the panel object that contains this mesh
+            const clickedMesh = intersects[0].object;
+            let panelGroup = clickedMesh.parent;
+
+            // Find the panel object in our placed objects
+            const panel = this.placedObjects.find(obj => obj === panelGroup);
+
+            if (panel && panel.userData.type === 'panel') {
+                // Start editing this panel
+                this.editPanel(panel);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    editPanel(panelGroup) {
+        // Find the PanelObject that corresponds to this group
+        // We need to dispatch an event to the main app to handle this
+        const event = new CustomEvent('panelEdit', {
+            detail: { panelGroup: panelGroup }
+        });
+        document.dispatchEvent(event);
+    }
+
+    placePanel() {
         const intersectTargets = [...this.placedObjects];
-        // Добавляем collision mesh если он загружен
+
         if (this.collisionMesh) {
-            // Получаем все mesh объекты из collision mesh (включая дочерние)
             const meshes = [];
             this.collisionMesh.traverse((child) => {
                 if (child.isMesh) {
@@ -273,7 +305,6 @@ export class EditorController {
             intersectTargets.push(...meshes);
         }
 
-        // Если collision mesh не загружен, используем splat как fallback
         if (!this.collisionMesh && this.splat) {
             intersectTargets.push(this.splat);
         }
@@ -282,15 +313,15 @@ export class EditorController {
 
         if (intersects.length > 0) {
             const intersectionPoint = intersects[0].point;
-            const newObject = this.createObject(this.selectedObjectType, intersectionPoint);
 
-            if (newObject) {
-                this.scene.add(newObject);
-                this.placedObjects.push(newObject);
+            // Dispatch event to create panel
+            const event = new CustomEvent('panelCreate', {
+                detail: { position: intersectionPoint }
+            });
+            document.dispatchEvent(event);
 
-                console.log(`Added ${this.selectedObjectType} at:`, intersectionPoint);
-                console.log('Intersected with:', intersects[0].object.type || 'unknown object');
-            }
+            console.log(`Added panel at:`, intersectionPoint);
+            console.log('Intersected with:', intersects[0].object.type || 'unknown object');
         } else {
             console.log('No intersection found');
         }
@@ -301,45 +332,14 @@ export class EditorController {
 
         if (intersects.length > 0) {
             const objectToRemove = intersects[0].object;
-            this.scene.remove(objectToRemove);
 
-            const index = this.placedObjects.indexOf(objectToRemove);
-            if (index > -1) {
-                this.placedObjects.splice(index, 1);
-            }
+            // Dispatch event for deletion
+            const event = new CustomEvent('objectDelete', {
+                detail: { object: objectToRemove }
+            });
+            document.dispatchEvent(event);
 
             console.log('Removed object:', objectToRemove.userData);
-        }
-    }
-
-    createObject(type, position) {
-        let geometry, material, mesh;
-
-        // Размер 20см = 0.2 в Three.js единицах
-        const size = 0.2;
-
-        if (type === 'cube') {
-            geometry = new BoxGeometry(size, size, size);
-            material = new MeshStandardMaterial({
-                color: 0xff4444,
-                metalness: 0.1,
-                roughness: 0.7
-            });
-
-            mesh = new Mesh(geometry, material);
-            mesh.position.copy(position);
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
-            mesh.userData = {
-                type: type,
-                id: Date.now(),
-                createdAt: new Date().toISOString()
-            };
-
-            return mesh;
-        } else {
-            console.warn(`Unknown object type: ${type}`);
-            return null;
         }
     }
 
@@ -362,7 +362,6 @@ export class EditorController {
         console.log('Collision mesh set for editor');
     }
 
-    // Новый метод для переключения видимости GLB
     toggleGLBVisibility() {
         if (!this.collisionMesh) {
             console.warn('No collision mesh loaded');
@@ -381,16 +380,13 @@ export class EditorController {
         return this.glbVisible;
     }
 
-    // Метод для получения текущего состояния видимости GLB
     isGLBVisible() {
         return this.glbVisible;
     }
 
-    // New methods for collider editing
     setColliderEditMode(enabled) {
         this.colliderEditMode = enabled;
 
-        // Reset all keys when disabling
         if (!enabled) {
             Object.keys(this.colliderKeys).forEach(key => {
                 this.colliderKeys[key] = false;
@@ -399,7 +395,6 @@ export class EditorController {
 
         console.log(`Collider edit mode: ${enabled ? 'ON' : 'OFF'}`);
 
-        // Make GLB visible when in collider edit mode
         if (enabled && this.collisionMesh && !this.glbVisible) {
             this.toggleGLBVisibility();
         }
@@ -409,7 +404,6 @@ export class EditorController {
         return this.colliderEditMode;
     }
 
-    // Method to be called in the render loop
     update() {
         if (this.enabled && this.colliderEditMode) {
             this.updateColliderMovement();
