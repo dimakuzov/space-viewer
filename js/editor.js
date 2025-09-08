@@ -24,7 +24,9 @@ export class EditorController {
 
         // New properties for collider editing
         this.colliderEditMode = false;
-        this.colliderMoveSpeed = 0.05; // 5 cm per frame
+        this.colliderMoveSpeed = 0.04; // 5 cm per frame
+        this.colliderScaleSpeed = 0.015;
+        this.colliderRotationSpeed = 0.015;
         this.colliderKeys = {
             forward: false,
             backward: false,
@@ -156,7 +158,6 @@ export class EditorController {
         if (this.colliderKeys.scaleUp || this.colliderKeys.scaleDown) {
 
             const currentScale = this.collisionMesh.scale.x; // Assuming uniform scaling
-            this.colliderScaleSpeed = this.colliderRotationSpeed || 0.05;
             let newScale = currentScale;
 
             if (this.colliderKeys.scaleUp) {
@@ -177,8 +178,6 @@ export class EditorController {
 
         // Handle rotation (RT)
         if (this.colliderKeys.rotateLeft || this.colliderKeys.rotateRight) {
-
-            this.colliderRotationSpeed = this.colliderRotationSpeed || 0.05;
 
             if (this.colliderKeys.rotateLeft) {
                 this.collisionMesh.rotation.y += this.colliderRotationSpeed;
