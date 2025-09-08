@@ -24,14 +24,16 @@ export class EditorController {
 
         // New properties for collider editing
         this.colliderEditMode = false;
-        this.colliderMoveSpeed = 0.04; // 5 cm per frame
-        this.colliderScaleSpeed = 0.015;
-        this.colliderRotationSpeed = 0.015;
+        this.colliderMoveSpeed = 0.03; // 5 cm per frame
+        this.colliderScaleSpeed = 0.01;
+        this.colliderRotationSpeed = 0.01;
         this.colliderKeys = {
             forward: false,
             backward: false,
             left: false,
             right: false,
+            up: false,
+            down: false,
             scaleUp: false,
             scaleDown: false,
             rotateLeft: false,
@@ -68,18 +70,26 @@ export class EditorController {
                 event.preventDefault();
                 break;
             case 'KeyQ':
-                this.colliderKeys.scaleDown = true;
+                this.colliderKeys.up = true;
                 event.preventDefault();
                 break;
             case 'KeyE':
-                this.colliderKeys.scaleUp = true;
+                this.colliderKeys.down = true;
+                event.preventDefault();
+                break;
+            case 'KeyF':
+                this.colliderKeys.scaleDown = true;
                 event.preventDefault();
                 break;
             case 'KeyR':
-                this.colliderKeys.rotateLeft = true;
+                this.colliderKeys.scaleUp = true;
                 event.preventDefault();
                 break;
             case 'KeyT':
+                this.colliderKeys.rotateLeft = true;
+                event.preventDefault();
+                break;
+            case 'KeyY':
                 this.colliderKeys.rotateRight = true;
                 event.preventDefault();
                 break;
@@ -103,15 +113,21 @@ export class EditorController {
                 this.colliderKeys.right = false;
                 break;
             case 'KeyQ':
-                this.colliderKeys.scaleDown = false;
+                this.colliderKeys.up = false;
                 break;
             case 'KeyE':
-                this.colliderKeys.scaleUp = false;
+                this.colliderKeys.down = false;
+                break;
+            case 'KeyF':
+                this.colliderKeys.scaleDown = false;
                 break;
             case 'KeyR':
-                this.colliderKeys.rotateLeft = false;
+                this.colliderKeys.scaleUp = false;
                 break;
             case 'KeyT':
+                this.colliderKeys.rotateLeft = false;
+                break;
+            case 'KeyY':
                 this.colliderKeys.rotateRight = false;
                 break;
         }
@@ -152,6 +168,29 @@ export class EditorController {
             if (this.colliderKeys.left) {
                 moveVector.add(right.multiplyScalar(-this.colliderMoveSpeed));
             }
+        }
+
+        if (this.colliderKeys.up || this.colliderKeys.down) {
+            const vertical = new Vector3(0, 1, 0); // world up
+
+            if (this.colliderKeys.up) {
+                moveVector.add(vertical.clone().multiplyScalar(this.colliderMoveSpeed));
+            }
+            if (this.colliderKeys.down) {
+                moveVector.add(vertical.clone().multiplyScalar(-this.colliderMoveSpeed));
+            }
+//            const up = new Vector3();
+//            this.camera.getWorldDirection(up);
+//            up.cross(this.camera.up);
+//            up.y = 0; // Keep movement horizontal
+//            up.normalize();
+//
+//            if (this.colliderKeys.up) {
+//                moveVector.add(up.multiplyScalar(this.colliderMoveSpeed));
+//            }
+//            if (this.colliderKeys.down) {
+//                moveVector.add(up.multiplyScalar(-this.colliderMoveSpeed));
+//            }
         }
 
         // Handle scaling (QE)
