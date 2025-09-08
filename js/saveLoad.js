@@ -1,9 +1,8 @@
-// saveLoad.js - System for saving and loading collider transform parameters
-
 export class SaveLoadController {
     constructor() {
         this.dataFilePath = 'assets/data.json';
         this.collisionMesh = null;
+        this.textPanelController = null;
     }
 
     setCollisionMesh(collisionMesh) {
@@ -14,7 +13,12 @@ export class SaveLoadController {
         this.loadTransform();
     }
 
-    // Save current collider transform to JSON file
+    setTextPanelController(textPanelController) {
+        this.textPanelController = textPanelController;
+        console.log('Text panel controller set for save/load system');
+    }
+
+    // Save current collider transform and text panels to JSON file
     async saveTransform() {
         if (!this.collisionMesh) {
             console.warn('No collision mesh to save');
@@ -22,7 +26,166 @@ export class SaveLoadController {
         }
 
         try {
-            const transformData = {
+            const data = {
+                // Collider transform data
+                colliderTransform: {
+                    position: {
+                        x: this.collisionMesh.position.x,
+                        y: this.collisionMesh.position.y,
+                        z: this.collisionMesh.position.z
+                    },
+                    rotation: {
+                        x: this.collisionMesh.rotation.x,
+                        y: this.collisionMesh.rotation.y,
+                        z: this.collisionMesh.rotation.z
+                    },
+                    scale: {
+                        x: this.collisionMesh.scale.x,
+                        y: this.collisionMesh.scale.y,
+                        z: this.collisionMesh.scale.z
+                    }
+                },
+                // Text panels data
+                textPanels: this.textPanelController ? this.textPanelController.getPanelsData() : [],
+                // Metadata
+                savedAt: new Date().toISOString(),
+                version: "1.1" // Version for future compatibility
+            };
+
+            // Create the JSON content
+            const jsonContent = JSON.stringify(data, null, 2);
+
+            // Create a download link for the JSON file
+            const blob = new Blob([jsonContent], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            console.log('Data saved:', data);
+            console.log(`Saved ${data.textPanels.length} text panels`);
+            console.log('Please place the downloaded data.json file in the assets/ folder');
+            
+            return true;
+        } catch (error) {
+            console.error('Failed to save data:', error);
+            return false;
+        }
+    }
+
+    // Load collider transform and text panels from JSON file
+    async loadTransform() {
+        if (!this.collisionMesh) {
+            console.warn('No collision mesh to load transform to');
+            return false;
+        }
+
+        try {
+            const response = await fetch(this.dataFilePath);
+            
+            if (!response.ok) {
+                console.log('No saved data found (data.json not found)');
+                return false;
+            }
+
+            const data = await response.json();
+
+            // Handle legacy format (pre-text panels)
+            if (data.position && !data.colliderTransform) {
+                // Legacy format - convert to new format
+                this.loadLegacyFormat(data);
+                return true;
+            }
+
+            // Load collider transform
+            if (data.colliderTransform) {
+                const transform = data.colliderTransform;
+
+                if (transform.position) {
+                    this.collisionMesh.position.set(
+                        transform.position.x || 0,
+                        transform.position.y || 0,
+                        transform.position.z || 0
+                    );
+                }
+
+                if (transform.rotation) {
+                    this.collisionMesh.rotation.set(
+                        transform.rotation.x || 0,
+                        transform.rotation.y || 0,
+                        transform.rotation.z || 0
+                    );
+                }
+
+                if (transform.scale) {
+                    this.collisionMesh.scale.set(
+                        transform.scale.x || 1,
+                        transform.scale.y || 1,
+                        transform.scale.z || 1
+                    );
+                }
+            }
+
+            // Load text panels
+            if (data.textPanels && this.textPanelController) {
+                this.textPanelController.loadPanelsData(data.textPanels);
+            }
+
+            console.log('Data loaded successfully:', data);
+            console.log(`Data saved at: ${data.savedAt || 'Unknown'}`);
+            console.log(`Loaded ${data.textPanels ? data.textPanels.length : 0} text panels`);
+            
+            return true;
+        } catch (error) {
+            console.error('Failed to load data:', error);
+            return false;
+        }
+    }
+
+    // Load legacy format (backwards compatibility)
+    loadLegacyFormat(legacyData) {
+        console.log('Loading legacy format data...');
+
+        if (legacyData.position) {
+            this.collisionMesh.position.set(
+                legacyData.position.x || 0,
+                legacyData.position.y || 0,
+                legacyData.position.z || 0
+            );
+        }
+
+        if (legacyData.rotation) {
+            this.collisionMesh.rotation.set(
+                legacyData.rotation.x || 0,
+                legacyData.rotation.y || 0,
+                legacyData.rotation.z || 0
+            );
+        }
+
+        if (legacyData.scale) {
+            this.collisionMesh.scale.set(
+                legacyData.scale.x || 1,
+                legacyData.scale.y || 1,
+                legacyData.scale.z || 1
+            );
+        }
+
+        console.log('Legacy data converted and loaded');
+    }
+
+    // Get current transform data (for debugging)
+    getCurrentTransform() {
+        if (!this.collisionMesh) {
+            return null;
+        }
+
+        return {
+            colliderTransform: {
                 position: {
                     x: this.collisionMesh.position.x,
                     y: this.collisionMesh.position.y,
@@ -37,109 +200,9 @@ export class SaveLoadController {
                     x: this.collisionMesh.scale.x,
                     y: this.collisionMesh.scale.y,
                     z: this.collisionMesh.scale.z
-                },
-                savedAt: new Date().toISOString()
-            };
-
-            // Create the JSON content
-            const jsonContent = JSON.stringify(transformData, null, 2);
-
-            // Create a download link for the JSON file
-            const blob = new Blob([jsonContent], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'data.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            console.log('Transform data saved:', transformData);
-            console.log('Please place the downloaded data.json file in the assets/ folder');
-            
-            return true;
-        } catch (error) {
-            console.error('Failed to save transform:', error);
-            return false;
-        }
-    }
-
-    // Load collider transform from JSON file
-    async loadTransform() {
-        if (!this.collisionMesh) {
-            console.warn('No collision mesh to load transform to');
-            return false;
-        }
-
-        try {
-            const response = await fetch(this.dataFilePath);
-            
-            if (!response.ok) {
-                console.log('No saved transform data found (data.json not found)');
-                return false;
-            }
-
-            const transformData = await response.json();
-
-            // Apply the loaded transform to the collision mesh
-            if (transformData.position) {
-                this.collisionMesh.position.set(
-                    transformData.position.x || 0,
-                    transformData.position.y || 0,
-                    transformData.position.z || 0
-                );
-            }
-
-            if (transformData.rotation) {
-                this.collisionMesh.rotation.set(
-                    transformData.rotation.x || 0,
-                    transformData.rotation.y || 0,
-                    transformData.rotation.z || 0
-                );
-            }
-
-            if (transformData.scale) {
-                this.collisionMesh.scale.set(
-                    transformData.scale.x || 1,
-                    transformData.scale.y || 1,
-                    transformData.scale.z || 1
-                );
-            }
-
-            console.log('Transform data loaded successfully:', transformData);
-            console.log(`Data saved at: ${transformData.savedAt || 'Unknown'}`);
-            
-            return true;
-        } catch (error) {
-            console.error('Failed to load transform:', error);
-            return false;
-        }
-    }
-
-    // Get current transform data (for debugging)
-    getCurrentTransform() {
-        if (!this.collisionMesh) {
-            return null;
-        }
-
-        return {
-            position: {
-                x: this.collisionMesh.position.x,
-                y: this.collisionMesh.position.y,
-                z: this.collisionMesh.position.z
+                }
             },
-            rotation: {
-                x: this.collisionMesh.rotation.x,
-                y: this.collisionMesh.rotation.y,
-                z: this.collisionMesh.rotation.z
-            },
-            scale: {
-                x: this.collisionMesh.scale.x,
-                y: this.collisionMesh.scale.y,
-                z: this.collisionMesh.scale.z
-            }
+            textPanels: this.textPanelController ? this.textPanelController.getPanelsData() : []
         };
     }
 
@@ -154,7 +217,12 @@ export class SaveLoadController {
         this.collisionMesh.rotation.set(0, 0, 0);
         this.collisionMesh.scale.set(1, 1, 1);
 
-        console.log('Transform reset to default values');
+        // Clear all text panels
+        if (this.textPanelController) {
+            this.textPanelController.clearAllPanels();
+        }
+
+        console.log('Transform and text panels reset to default values');
         return true;
     }
 }

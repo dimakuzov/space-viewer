@@ -239,6 +239,12 @@ export class EditorController {
     onClick(event) {
         if (!this.enabled || this.colliderEditMode) return;
 
+        // Skip if this is a text panel interaction
+        if (this.selectedObjectType === 'textPanel') {
+            // Text panel clicks are handled by TextPanelController
+            return;
+        }
+
         // Вычисляем координаты мыши в нормализованном пространстве
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -278,11 +284,13 @@ export class EditorController {
             const intersectionPoint = intersects[0].point;
             const newObject = this.createObject(this.selectedObjectType, intersectionPoint);
 
-            this.scene.add(newObject);
-            this.placedObjects.push(newObject);
+            if (newObject) {
+                this.scene.add(newObject);
+                this.placedObjects.push(newObject);
 
-            console.log(`Added ${this.selectedObjectType} at:`, intersectionPoint);
-            console.log('Intersected with:', intersects[0].object.type || 'unknown object');
+                console.log(`Added ${this.selectedObjectType} at:`, intersectionPoint);
+                console.log('Intersected with:', intersects[0].object.type || 'unknown object');
+            }
         } else {
             console.log('No intersection found');
         }
@@ -317,22 +325,22 @@ export class EditorController {
                 metalness: 0.1,
                 roughness: 0.7
             });
+
+            mesh = new Mesh(geometry, material);
+            mesh.position.copy(position);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            mesh.userData = {
+                type: type,
+                id: Date.now(),
+                createdAt: new Date().toISOString()
+            };
+
+            return mesh;
         } else {
             console.warn(`Unknown object type: ${type}`);
             return null;
         }
-
-        mesh = new Mesh(geometry, material);
-        mesh.position.copy(position);
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        mesh.userData = {
-            type: type,
-            id: Date.now(),
-            createdAt: new Date().toISOString()
-        };
-
-        return mesh;
     }
 
     setSelectedObjectType(type) {

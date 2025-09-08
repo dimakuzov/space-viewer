@@ -3,7 +3,8 @@ import {
     PerspectiveCamera,
     Scene,
     DirectionalLight,
-    AmbientLight
+    AmbientLight,
+    Vector3
 } from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -14,6 +15,7 @@ import { MovementController } from './movement.js';
 import { EditorController } from './editor.js';
 import { UIController } from './ui.js';
 import { SaveLoadController } from './saveLoad.js';
+import { TextPanelController } from './textPanel.js';
 
 class LumaSceneApp {
     constructor() {
@@ -75,7 +77,12 @@ class LumaSceneApp {
         // Initialize controllers
         this.movementController = new MovementController(this.camera, this.pointerLockControls);
         this.editorController = new EditorController(this.scene, this.camera, this.placedObjects);
+        this.textPanelController = new TextPanelController(this.scene, this.camera, this.renderer);
         this.saveLoadController = new SaveLoadController();
+
+        // Connect text panel controller to save/load system
+        this.saveLoadController.setTextPanelController(this.textPanelController);
+
         this.uiController = new UIController(this);
     }
 
@@ -168,6 +175,7 @@ class LumaSceneApp {
         this.isEditMode = isEdit;
         this.movementController.setEnabled(!isEdit);
         this.editorController.setEnabled(isEdit);
+        this.textPanelController.setEnabled(isEdit);
     }
 
     getPlacedObjects() {
@@ -185,6 +193,21 @@ class LumaSceneApp {
             this.placedObjects.splice(index, 1);
             this.scene.remove(object);
         }
+    }
+
+    // New method: Create text panel
+    createTextPanel(position, text = "Sample Text") {
+        return this.textPanelController.createPanel(position, text);
+    }
+
+    // New method: Create text panel at camera position (for UI button)
+    createTextPanelAtCamera() {
+        // Calculate position in front of camera
+        const direction = new Vector3();
+        this.camera.getWorldDirection(direction);
+        const position = this.camera.position.clone().add(direction.multiplyScalar(2));
+
+        return this.createTextPanel(position, "New Text Panel");
     }
 
     // New method: Save collider transform
@@ -215,7 +238,12 @@ class LumaSceneApp {
             } else {
                 // Update editor controller for collider movement
                 this.editorController.update();
+                // Update text panel controller for panel movement and billboard effect
+                this.textPanelController.update();
             }
+
+            // Always update text panel billboards (even in view mode)
+            this.textPanelController.updatePanelBillboards();
 
             // Render scene
             this.renderer.render(this.scene, this.camera);

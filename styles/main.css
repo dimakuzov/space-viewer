@@ -63,8 +63,9 @@ canvas {
     margin: 2px;
     border-radius: 4px;
     cursor: pointer;
-    width: calc(50% - 4px);
+    width: calc(33% - 4px);
     transition: background 0.3s;
+    font-size: 11px;
 }
 
 .object-tools button:hover {
@@ -80,6 +81,7 @@ canvas {
     background: #9C27B0 !important;
     width: 100% !important;
     margin-top: 5px !important;
+    font-size: 12px !important;
 }
 
 .glb-toggle:hover {
@@ -90,11 +92,12 @@ canvas {
     background: #E91E63 !important;
 }
 
-/* New: Collider Edit button styles */
+/* Collider Edit button styles */
 .collider-edit-toggle {
     background: #FF5722 !important;
     width: 100% !important;
     margin-top: 5px !important;
+    font-size: 12px !important;
 }
 
 .collider-edit-toggle:hover {
@@ -106,11 +109,12 @@ canvas {
     color: #000 !important;
 }
 
-/* New: Save Transform button styles */
+/* Save Transform button styles */
 .save-transform-btn {
     background: #4CAF50 !important;
     width: 100% !important;
     margin-top: 5px !important;
+    font-size: 12px !important;
 }
 
 .save-transform-btn:hover {
@@ -176,4 +180,25 @@ canvas {
     height: 100%;
     width: 2px;
     margin-left: -1px;
+}
+
+/* Text Panel Edit UI Styles */
+#panelEditUI {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+#panelEditUI textarea {
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+#panelEditUI textarea:focus {
+    outline: 2px solid #4CAF50;
+    border-color: #4CAF50;
+}
+
+#panelEditUI button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
 }
