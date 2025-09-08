@@ -24,6 +24,9 @@ export class UIController {
         // New: Edit Collider button
         this.editColliderBtn = document.getElementById('editCollider');
 
+        // New: Save Transform button
+        this.saveTransformBtn = document.getElementById('saveTransform');
+
         // Прицел
         this.crosshair = document.getElementById('crosshair');
 
@@ -59,6 +62,11 @@ export class UIController {
         // New: Edit Collider button
         this.editColliderBtn.addEventListener('click', () => {
             this.toggleEditCollider();
+        });
+
+        // New: Save Transform button
+        this.saveTransformBtn.addEventListener('click', () => {
+            this.saveColliderTransform();
         });
 
         // Сохранение/загрузка (пока закомментировано)
@@ -98,6 +106,12 @@ export class UIController {
                     break;
                 case 'KeyC':
                     this.toggleEditCollider();
+                    break;
+                case 'KeyS':
+                    if (event.ctrlKey || event.metaKey) {
+                        event.preventDefault();
+                        this.saveColliderTransform();
+                    }
                     break;
             }
         }
@@ -211,6 +225,37 @@ export class UIController {
         } else {
             this.editColliderBtn.classList.remove('active');
             this.editColliderBtn.textContent = 'Edit Collider';
+        }
+    }
+
+    // New method: Save collider transform
+    saveColliderTransform() {
+        const success = this.app.saveColliderTransform();
+
+        if (success) {
+            // Provide visual feedback
+            const originalText = this.saveTransformBtn.textContent;
+            this.saveTransformBtn.textContent = 'Saved!';
+            this.saveTransformBtn.style.background = '#4CAF50';
+
+            setTimeout(() => {
+                this.saveTransformBtn.textContent = originalText;
+                this.saveTransformBtn.style.background = '';
+            }, 1500);
+
+            console.log('Collider transform saved successfully');
+        } else {
+            // Show error feedback
+            const originalText = this.saveTransformBtn.textContent;
+            this.saveTransformBtn.textContent = 'Error!';
+            this.saveTransformBtn.style.background = '#f44336';
+
+            setTimeout(() => {
+                this.saveTransformBtn.textContent = originalText;
+                this.saveTransformBtn.style.background = '';
+            }, 1500);
+
+            console.error('Failed to save collider transform');
         }
     }
 }

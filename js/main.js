@@ -9,16 +9,17 @@ import { PointerLockControls } from 'three/addons/controls/PointerLockControls.j
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { LumaSplatsThree } from '@lumaai/luma-web';
 
-// Импорт модулей
+// Import modules
 import { MovementController } from './movement.js';
 import { EditorController } from './editor.js';
 import { UIController } from './ui.js';
+import { SaveLoadController } from './saveLoad.js';
 
 class LumaSceneApp {
     constructor() {
         this.isEditMode = false;
         this.placedObjects = [];
-        this.collisionMesh = null; // Невидимый mesh для коллизий
+        this.collisionMesh = null; // Invisible mesh for collisions
 
         this.initRenderer();
         this.initScene();
@@ -56,7 +57,7 @@ class LumaSceneApp {
     }
 
     initLights() {
-        // Освещение для 3D объектов
+        // Lighting for 3D objects
         const ambientLight = new AmbientLight(0x404040, 0.6);
         this.scene.add(ambientLight);
 
@@ -71,18 +72,19 @@ class LumaSceneApp {
     }
 
     initControllers() {
-        // Инициализация контроллеров
+        // Initialize controllers
         this.movementController = new MovementController(this.camera, this.pointerLockControls);
         this.editorController = new EditorController(this.scene, this.camera, this.placedObjects);
+        this.saveLoadController = new SaveLoadController();
         this.uiController = new UIController(this);
     }
 
     async loadAssets() {
         try {
-            // Загружаем Luma splat для визуализации
+            // Load Luma splat for visualization
             await this.loadLumaScene();
 
-            // Загружаем GLB для коллизий
+            // Load GLB for collisions
             await this.loadCollisionMesh();
 
         } catch (error) {
@@ -115,25 +117,28 @@ class LumaSceneApp {
                 (gltf) => {
                     console.log('GLB collision mesh loaded successfully');
 
-                    // Получаем mesh из GLB файла
+                    // Get mesh from GLB file
                     this.collisionMesh = gltf.scene;
 
-                    // Делаем mesh невидимым, но оставляем для ray casting
+                    // Make mesh invisible but keep for ray casting
                     this.collisionMesh.traverse((child) => {
                         if (child.isMesh) {
-                            // Делаем материал невидимым
+                            // Make material invisible
                             child.visible = false;
-                            // Можно также установить transparent материал:
+                            // Can also set transparent material:
                             // child.material.transparent = true;
                             // child.material.opacity = 0;
                         }
                     });
 
-                    // Добавляем в сцену для ray casting
+                    // Add to scene for ray casting
                     this.scene.add(this.collisionMesh);
 
-                    // Передаем collision mesh в editor для ray casting
+                    // Pass collision mesh to editor for ray casting
                     this.editorController.setCollisionMesh(this.collisionMesh);
+
+                    // Pass collision mesh to save/load controller
+                    this.saveLoadController.setCollisionMesh(this.collisionMesh);
 
                     console.log('Collision mesh setup complete');
                     resolve();
@@ -151,7 +156,7 @@ class LumaSceneApp {
     }
     
     bindEvents() {
-        // Обработка изменения размера окна
+        // Handle window resize
         window.addEventListener('resize', () => {
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
@@ -182,9 +187,29 @@ class LumaSceneApp {
         }
     }
 
+    // New method: Save collider transform
+    saveColliderTransform() {
+        return this.saveLoadController.saveTransform();
+    }
+
+    // New method: Load collider transform
+    loadColliderTransform() {
+        return this.saveLoadController.loadTransform();
+    }
+
+    // New method: Reset collider transform
+    resetColliderTransform() {
+        return this.saveLoadController.resetTransform();
+    }
+
+    // New method: Get current collider transform (for debugging)
+    getCurrentColliderTransform() {
+        return this.saveLoadController.getCurrentTransform();
+    }
+
     startRenderLoop() {
         this.renderer.setAnimationLoop(() => {
-            // Обновление контроллеров
+            // Update controllers
             if (!this.isEditMode) {
                 this.movementController.update();
             } else {
@@ -192,14 +217,14 @@ class LumaSceneApp {
                 this.editorController.update();
             }
 
-            // Рендеринг сцены
+            // Render scene
             this.renderer.render(this.scene, this.camera);
         });
     }
 }
 
-// Запуск приложения
+// Launch application
 const app = new LumaSceneApp();
 
-// Делаем доступным глобально для отладки
+// Make globally available for debugging
 window.lumaApp = app;

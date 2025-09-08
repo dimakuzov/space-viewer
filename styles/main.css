@@ -106,6 +106,17 @@ canvas {
     color: #000 !important;
 }
 
+/* New: Save Transform button styles */
+.save-transform-btn {
+    background: #4CAF50 !important;
+    width: 100% !important;
+    margin-top: 5px !important;
+}
+
+.save-transform-btn:hover {
+    background: #45a049 !important;
+}
+
 .controls-info {
     font-size: 11px;
     opacity: 0.8;
