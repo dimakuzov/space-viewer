@@ -423,10 +423,7 @@ export class PanelEditor {
         if (positionEditMode) {
             this.instructions.innerHTML = `
                 <strong style="color: #FF9800;">Position Edit Mode Active:</strong><br>
-                • WASD - Move panel horizontally<br>
-                • R/F - Move panel up/down<br>
-                • Click "Exit Position Edit" to return to text editing<br>
-                • Text input is disabled during position editing
+                WASD - Move panel horizontally, R/F - Move panel up/down, Escape - Cancel editing
             `;
             this.instructions.style.background = '#fff3cd';
             this.instructions.style.border = '1px solid #ffc107';
@@ -441,10 +438,6 @@ export class PanelEditor {
         } else {
             this.instructions.innerHTML = `
                 <strong style="color: #4CAF50;">Text Edit Mode:</strong><br>
-                • Type to edit panel text<br>
-                • Click "Edit Position" to move the panel<br>
-                • Ctrl+Enter - Save changes<br>
-                • Escape - Cancel editing
             `;
             this.instructions.style.background = 'rgba(0, 0, 0, 0.05)';
             this.instructions.style.border = 'none';

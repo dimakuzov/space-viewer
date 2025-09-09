@@ -28,30 +28,30 @@ export class PanelObject {
     createPanel() {
         // Create canvas for background only (transparent)
         this.backgroundCanvas = document.createElement('canvas');
-        this.backgroundCanvas.width = 384;
-        this.backgroundCanvas.height = 256;
+        this.backgroundCanvas.width = 350;
+        this.backgroundCanvas.height = 190;
         this.backgroundCtx = this.backgroundCanvas.getContext('2d');
 
         // Create canvas for border (opaque)
         this.borderCanvas = document.createElement('canvas');
-        this.borderCanvas.width = 384;
-        this.borderCanvas.height = 256;
+        this.borderCanvas.width = 350;
+        this.borderCanvas.height = 190;
         this.borderCtx = this.borderCanvas.getContext('2d');
 
         // Create canvas for text (opaque)
         this.textCanvas = document.createElement('canvas');
-        this.textCanvas.width = 384;
-        this.textCanvas.height = 256;
+        this.textCanvas.width = 350;
+        this.textCanvas.height = 190;
         this.textCtx = this.textCanvas.getContext('2d');
 
         // Create geometry
-        this.geometry = new PlaneGeometry(0.42, 0.28);
+        this.geometry = new PlaneGeometry(0.35, 0.19);
 
         // Background material (transparent with blur)
         this.backgroundTexture = new CanvasTexture(this.backgroundCanvas);
         this.backgroundMaterial = new MeshPhysicalMaterial({
             map: this.backgroundTexture,
-            transmission: 0.95,
+            transmission: 0.55,
             roughness: 0.05,
             thickness: 0.005,
             transparent: true,
@@ -97,20 +97,20 @@ export class PanelObject {
     }
 
     updateTexture() {
-        const borderRadius = 12;
-        const borderWidth = 3;
+        const borderRadius = 15;
+        const borderWidth = 6;
 
         // Clear all canvases
-        this.backgroundCtx.clearRect(0, 0, 384, 256);
-        this.borderCtx.clearRect(0, 0, 384, 256);
-        this.textCtx.clearRect(0, 0, 384, 256);
+        this.backgroundCtx.clearRect(0, 0, 350, 190);
+        this.borderCtx.clearRect(0, 0, 350, 190);
+        this.textCtx.clearRect(0, 0, 350, 190);
 
         // Draw background (transparent)
-        this.drawRoundedRect(this.backgroundCtx, 0, 0, 384, 256, borderRadius, 'rgba(0, 0, 30, 0.8)');
+        this.drawRoundedRect(this.backgroundCtx, 0, 0, 350, 190, borderRadius, 'rgba(0, 0, 30, 0.8)');
 
         // Draw border (opaque white)
         this.drawRoundedRectBorder(this.borderCtx, borderWidth/2, borderWidth/2,
-            384 - borderWidth, 256 - borderWidth,
+            350 - borderWidth, 190 - borderWidth,
             borderRadius - borderWidth/2, 'rgba(255, 255, 255, 1.0)', borderWidth);
 
         // Draw text (opaque white)
@@ -123,7 +123,7 @@ export class PanelObject {
         const words = this.text.split(' ');
         const lines = [];
         let currentLine = '';
-        const maxWidth = 384 - 40;
+        const maxWidth = 350 - 40;
 
         for (let word of words) {
             const testLine = currentLine + (currentLine ? ' ' : '') + word;
@@ -141,10 +141,10 @@ export class PanelObject {
         }
 
         const lineHeight = 40;
-        const startY = (256 - (lines.length - 1) * lineHeight) / 2;
+        const startY = (190 - (lines.length - 1) * lineHeight) / 2;
 
         lines.forEach((line, index) => {
-            this.textCtx.fillText(line, 384 / 2, startY + index * lineHeight);
+            this.textCtx.fillText(line, 350 / 2, startY + index * lineHeight);
         });
 
         // Update all textures
