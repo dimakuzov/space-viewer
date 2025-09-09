@@ -284,10 +284,7 @@ export class PanelEditor {
         `;
         this.instructions.innerHTML = `
             <strong>Controls:</strong><br>
-            • WASD - Move panel horizontally<br>
-            • R/F - Move panel up/down<br>
-            • Ctrl+Enter - Save changes<br>
-            • Escape - Cancel editing
+            WASD - Move panel horizontally, R/F - Move panel up/down, Escape - Cancel editing
         `;
         this.updateInstructions(false);
 
