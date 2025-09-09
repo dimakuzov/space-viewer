@@ -25,21 +25,31 @@ export class PanelObject {
     }
 
     createPanel() {
-        // Create canvas for text rendering with new dimensions
-        this.canvas = document.createElement('canvas');
-        this.canvas.width = 384;
-        this.canvas.height = 256;
-        this.ctx = this.canvas.getContext('2d');
+        // Create canvas for background only (transparent)
+        this.backgroundCanvas = document.createElement('canvas');
+        this.backgroundCanvas.width = 384;
+        this.backgroundCanvas.height = 256;
+        this.backgroundCtx = this.backgroundCanvas.getContext('2d');
 
-        // Create geometry with adjusted size to match canvas aspect ratio
-        this.geometry = new PlaneGeometry(0.48, 0.32); // Reduced size: 0.96m x 0.64m panel
+        // Create canvas for border (opaque)
+        this.borderCanvas = document.createElement('canvas');
+        this.borderCanvas.width = 384;
+        this.borderCanvas.height = 256;
+        this.borderCtx = this.borderCanvas.getContext('2d');
 
-        // Create texture
-        this.texture = new CanvasTexture(this.canvas);
+        // Create canvas for text (opaque)
+        this.textCanvas = document.createElement('canvas');
+        this.textCanvas.width = 384;
+        this.textCanvas.height = 256;
+        this.textCtx = this.textCanvas.getContext('2d');
 
-        // Use MeshPhysicalMaterial for blur effect
-        this.material = new MeshPhysicalMaterial({
-            map: this.texture,
+        // Create geometry
+        this.geometry = new PlaneGeometry(0.42, 0.28);
+
+        // Background material (transparent with blur)
+        this.backgroundTexture = new CanvasTexture(this.backgroundCanvas);
+        this.backgroundMaterial = new MeshPhysicalMaterial({
+            map: this.backgroundTexture,
             transmission: 0.95,
             roughness: 0.05,
             thickness: 0.005,
@@ -51,44 +61,72 @@ export class PanelObject {
             reflectivity: 0.05
         });
 
-        // Create mesh
-        this.mesh = new Mesh(this.geometry, this.material);
-        this.group.add(this.mesh);
+        // Border material (opaque)
+        this.borderTexture = new CanvasTexture(this.borderCanvas);
+        this.borderMaterial = new MeshBasicMaterial({
+            map: this.borderTexture,
+            transparent: true,
+            side: 2
+        });
 
-        // Render initial text
+        // Text material (opaque)
+        this.textTexture = new CanvasTexture(this.textCanvas);
+        this.textMaterial = new MeshBasicMaterial({
+            map: this.textTexture,
+            transparent: true,
+            side: 2
+        });
+
+        // Create meshes
+        this.backgroundMesh = new Mesh(this.geometry, this.backgroundMaterial);
+        this.borderMesh = new Mesh(this.geometry, this.borderMaterial);
+        this.textMesh = new Mesh(this.geometry, this.textMaterial);
+
+        // Position them slightly apart to avoid z-fighting
+        this.backgroundMesh.position.z = 0;
+        this.borderMesh.position.z = 0.001;
+        this.textMesh.position.z = 0.002;
+
+        // Add all meshes to group
+        this.group.add(this.backgroundMesh);
+        this.group.add(this.borderMesh);
+        this.group.add(this.textMesh);
+
         this.updateTexture();
     }
 
     updateTexture() {
-        const ctx = this.ctx;
-        const canvas = this.canvas;
         const borderRadius = 12;
         const borderWidth = 3;
 
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Clear all canvases
+        this.backgroundCtx.clearRect(0, 0, 192, 128);
+        this.borderCtx.clearRect(0, 0, 192, 128);
+        this.textCtx.clearRect(0, 0, 192, 128);
 
-        // Draw rounded rectangle with more transparent background
-        this.drawRoundedRect(ctx, 0, 0, canvas.width, canvas.height, borderRadius, 'rgba(0, 0, 30, 0.2)');
-        this.drawRoundedRectBorder(ctx, borderWidth/2, borderWidth/2,
-            canvas.width - borderWidth, canvas.height - borderWidth,
-            borderRadius - borderWidth/2, 'rgba(255, 255, 255, 0.7)', borderWidth);
+        // Draw background (transparent)
+        this.drawRoundedRect(this.backgroundCtx, 0, 0, 192, 128, borderRadius, 'rgba(0, 0, 30, 0.2)');
 
-        // Set text properties with Montserrat font
-        ctx.fillStyle = 'white';
-        ctx.font = '35px Montserrat, Arial, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        // Draw border (opaque white)
+        this.drawRoundedRectBorder(this.borderCtx, borderWidth/2, borderWidth/2,
+            192 - borderWidth, 128 - borderWidth,
+            borderRadius - borderWidth/2, 'rgba(255, 255, 255, 1.0)', borderWidth);
 
-        // Word wrap text
+        // Draw text (opaque white)
+        this.textCtx.fillStyle = 'rgba(255, 255, 255, 1.0)';
+        this.textCtx.font = '35px Montserrat, Arial, sans-serif';
+        this.textCtx.textAlign = 'center';
+        this.textCtx.textBaseline = 'middle';
+
+        // Word wrap and draw text (same logic as before)
         const words = this.text.split(' ');
         const lines = [];
         let currentLine = '';
-        const maxWidth = canvas.width - 40; // padding
+        const maxWidth = 192 - 40;
 
         for (let word of words) {
             const testLine = currentLine + (currentLine ? ' ' : '') + word;
-            const metrics = ctx.measureText(testLine);
+            const metrics = this.textCtx.measureText(testLine);
 
             if (metrics.width > maxWidth && currentLine !== '') {
                 lines.push(currentLine);
@@ -101,16 +139,17 @@ export class PanelObject {
             lines.push(currentLine);
         }
 
-        // Draw text lines with doubled line height
-        const lineHeight = 42;
-        const startY = (canvas.height - (lines.length - 1) * lineHeight) / 2;
+        const lineHeight = 40;
+        const startY = (128 - (lines.length - 1) * lineHeight) / 2;
 
         lines.forEach((line, index) => {
-            ctx.fillText(line, canvas.width / 2, startY + index * lineHeight);
+            this.textCtx.fillText(line, 192 / 2, startY + index * lineHeight);
         });
 
-        // Update texture
-        this.texture.needsUpdate = true;
+        // Update all textures
+        this.backgroundTexture.needsUpdate = true;
+        this.borderTexture.needsUpdate = true;
+        this.textTexture.needsUpdate = true;
     }
 
     // Helper function to draw rounded rectangle
