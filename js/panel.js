@@ -40,10 +40,15 @@ export class PanelObject {
         // Use MeshPhysicalMaterial for blur effect
         this.material = new MeshPhysicalMaterial({
             map: this.texture,
-            transmission: 1,
-            roughness: 0.4,
+            transmission: 1.0,
+            roughness: 0.1,
+            thickness: 0.01,
             transparent: true,
-            alphaTest: 0.1
+            opacity: 0.3,
+            alphaTest: 0.001,
+            side: 2, // DoubleSide
+            ior: 1.5,
+            reflectivity: 0.1
         });
 
         // Create mesh
@@ -64,12 +69,10 @@ export class PanelObject {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // Draw rounded rectangle with more transparent background
-        this.drawRoundedRect(ctx, 0, 0, canvas.width, canvas.height, borderRadius, 'rgba(0, 0, 0, 0.3)');
-
-        // Draw white border with more transparency
+        this.drawRoundedRect(ctx, 0, 0, canvas.width, canvas.height, borderRadius, 'rgba(0, 0, 0, 0.1)');
         this.drawRoundedRectBorder(ctx, borderWidth/2, borderWidth/2,
             canvas.width - borderWidth, canvas.height - borderWidth,
-            borderRadius - borderWidth/2, 'rgba(255, 255, 255, 0.6)', borderWidth);
+            borderRadius - borderWidth/2, 'rgba(255, 255, 255, 0.3)', borderWidth);
 
         // Set text properties with Montserrat font
         ctx.fillStyle = 'white';
@@ -98,8 +101,8 @@ export class PanelObject {
             lines.push(currentLine);
         }
 
-        // Draw text lines
-        const lineHeight = 24;
+        // Draw text lines with doubled line height
+        const lineHeight = 48;
         const startY = (canvas.height - (lines.length - 1) * lineHeight) / 2;
 
         lines.forEach((line, index) => {

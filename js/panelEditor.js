@@ -123,12 +123,12 @@ export class PanelEditor {
     }
 
     createEditUI() {
-        // Create edit buttons container - positioned above text input
+        // Create edit buttons container - positioned higher above text input
         this.editButtons = document.createElement('div');
         this.editButtons.className = 'panel-edit-buttons';
         this.editButtons.style.cssText = `
             position: fixed;
-            bottom: 200px;
+            bottom: 380px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.9);
