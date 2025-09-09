@@ -27,8 +27,8 @@ export class PanelObject {
     createPanel() {
         // Create canvas for text rendering
         this.canvas = document.createElement('canvas');
-        this.canvas.width = 512;
-        this.canvas.height = 256;
+        this.canvas.width = 192;
+        this.canvas.height = 128;
         this.ctx = this.canvas.getContext('2d');
 
         // Create geometry and material

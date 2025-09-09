@@ -278,7 +278,8 @@ export class PanelEditor {
     }
 
     updateMovement() {
-        if (!this.editMode || !this.selectedPanel) return;
+        // Only move when in position edit mode
+        if (!this.editMode || !this.selectedPanel || !this.positionEditMode) return;
 
         const moveVector = new Vector3();
 
@@ -362,6 +363,7 @@ export class PanelEditor {
 
     endEdit() {
         this.editMode = false;
+        this.positionEditMode = false;
         this.selectedPanel = null;
         this.originalText = '';
 
@@ -382,10 +384,16 @@ export class PanelEditor {
         }
 
         this.textInput = null;
+        this.editPositionBtn = null;
+        this.instructions = null;
     }
 
     isEditing() {
         return this.editMode;
+    }
+
+    isEditingPosition() {
+        return this.positionEditMode;
     }
 
     getSelectedPanel() {
@@ -394,7 +402,7 @@ export class PanelEditor {
 
     // Method to be called in the render loop
     update() {
-        if (this.editMode) {
+        if (this.editMode && this.positionEditMode) {
             this.updateMovement();
         }
     }

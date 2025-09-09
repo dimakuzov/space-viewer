@@ -196,6 +196,12 @@ canvas {
     border-color: #4CAF50;
 }
 
+.panel-text-overlay textarea:disabled {
+    background-color: #f5f5f5 !important;
+    color: #666;
+    cursor: not-allowed;
+}
+
 /* Additional responsive styles for panel editing */
 @media (max-width: 600px) {
     .panel-text-overlay > div {
@@ -206,9 +212,25 @@ canvas {
     .panel-edit-buttons {
         flex-direction: column;
         gap: 4px !important;
+        max-width: 200px;
     }
 
     .panel-edit-buttons button {
         width: 100% !important;
+        min-width: auto !important;
+    }
+}
+
+@media (max-width: 800px) {
+    .panel-edit-buttons {
+        max-width: 300px;
+        gap: 4px !important;
+    }
+
+    .panel-edit-buttons button {
+        flex: 1;
+        min-width: 70px;
+        font-size: 10px;
+        padding: 5px 8px;
     }
 }

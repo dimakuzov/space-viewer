@@ -233,6 +233,12 @@ export class EditorController {
     onClick(event) {
         if (!this.enabled || this.colliderEditMode) return;
 
+        // Check if click was on UI element
+        if (this.isClickOnUI(event)) {
+            console.log('Click on UI element - ignoring interaction');
+            return;
+        }
+
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -247,6 +253,29 @@ export class EditorController {
                 this.placePanel();
             }
         }
+    }
+
+    isClickOnUI(event) {
+        // Check if the click target or any of its parents is a UI element
+        let element = event.target;
+        while (element) {
+            // Check for common UI classes and elements
+            if (element.classList && (
+                element.classList.contains('ui-panel') ||
+                element.classList.contains('object-tools') ||
+                element.classList.contains('mode-toggle') ||
+                element.classList.contains('controls-info') ||
+                element.classList.contains('panel-edit-buttons') ||
+                element.classList.contains('panel-text-overlay') ||
+                element.tagName === 'BUTTON' ||
+                element.tagName === 'INPUT' ||
+                element.tagName === 'TEXTAREA'
+            )) {
+                return true;
+            }
+            element = element.parentElement;
+        }
+        return false;
     }
 
     checkPanelClick() {
