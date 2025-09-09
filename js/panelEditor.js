@@ -151,6 +151,7 @@ export class PanelEditor {
         this.editButtons.appendChild(saveBtn);
         this.editButtons.appendChild(deleteBtn);
         this.editButtons.appendChild(editPositionBtn);
+        this.editPositionBtn = editPositionBtn;
 
         document.body.appendChild(this.editButtons);
     }
