@@ -101,16 +101,16 @@ export class PanelObject {
         const borderWidth = 3;
 
         // Clear all canvases
-        this.backgroundCtx.clearRect(0, 0, 192, 128);
-        this.borderCtx.clearRect(0, 0, 192, 128);
-        this.textCtx.clearRect(0, 0, 192, 128);
+        this.backgroundCtx.clearRect(0, 0, 384, 256);
+        this.borderCtx.clearRect(0, 0, 384, 256);
+        this.textCtx.clearRect(0, 0, 384, 256);
 
         // Draw background (transparent)
-        this.drawRoundedRect(this.backgroundCtx, 0, 0, 192, 128, borderRadius, 'rgba(0, 0, 30, 0.2)');
+        this.drawRoundedRect(this.backgroundCtx, 0, 0, 384, 256, borderRadius, 'rgba(0, 0, 30, 0.8)');
 
         // Draw border (opaque white)
         this.drawRoundedRectBorder(this.borderCtx, borderWidth/2, borderWidth/2,
-            192 - borderWidth, 128 - borderWidth,
+            384 - borderWidth, 256 - borderWidth,
             borderRadius - borderWidth/2, 'rgba(255, 255, 255, 1.0)', borderWidth);
 
         // Draw text (opaque white)
@@ -123,7 +123,7 @@ export class PanelObject {
         const words = this.text.split(' ');
         const lines = [];
         let currentLine = '';
-        const maxWidth = 192 - 40;
+        const maxWidth = 384 - 40;
 
         for (let word of words) {
             const testLine = currentLine + (currentLine ? ' ' : '') + word;
@@ -141,10 +141,10 @@ export class PanelObject {
         }
 
         const lineHeight = 40;
-        const startY = (128 - (lines.length - 1) * lineHeight) / 2;
+        const startY = (256 - (lines.length - 1) * lineHeight) / 2;
 
         lines.forEach((line, index) => {
-            this.textCtx.fillText(line, 192 / 2, startY + index * lineHeight);
+            this.textCtx.fillText(line, 384 / 2, startY + index * lineHeight);
         });
 
         // Update all textures
