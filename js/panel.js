@@ -51,11 +51,11 @@ export class PanelObject {
         this.backgroundTexture = new CanvasTexture(this.backgroundCanvas);
         this.backgroundMaterial = new MeshPhysicalMaterial({
             map: this.backgroundTexture,
-            transmission: 0.05,
+            transmission: 0.95,
             roughness: 0.05,
             thickness: 0.005,
             transparent: true,
-            opacity: 0.05,
+            opacity: 0.15,
             alphaTest: 0.0001,
             side: 2, // DoubleSide
             ior: 1.5,
