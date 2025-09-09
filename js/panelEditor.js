@@ -9,6 +9,7 @@ export class PanelEditor {
         this.camera = camera;
         this.selectedPanel = null;
         this.editMode = false;
+        this.positionEditMode = false;
         this.moveSpeed = 0.03; // 5cm per movement
 
         this.keys = {
@@ -34,6 +35,10 @@ export class PanelEditor {
 
     onKeyDown(event) {
         if (!this.editMode || !this.selectedPanel) return;
+
+        if (this.textInput && document.activeElement === this.textInput) {
+            return;
+        }
 
         switch(event.code) {
             case 'KeyW':
@@ -75,6 +80,10 @@ export class PanelEditor {
 
     onKeyUp(event) {
         if (!this.editMode || !this.selectedPanel) return;
+
+        if (this.textInput && document.activeElement === this.textInput) {
+            return;
+        }
 
         switch(event.code) {
             case 'KeyW':
@@ -363,6 +372,31 @@ export class PanelEditor {
 
         console.log('Panel deleted');
         this.endEdit();
+    }
+
+    togglePositionEdit() {
+        this.positionEditMode = !this.positionEditMode;
+
+        if (this.positionEditMode) {
+            this.editPositionBtn.textContent = 'Exit Position Edit';
+            this.editPositionBtn.style.background = '#FF9800';
+
+            // Update instructions in text input
+            this.updateInstructions(true);
+        } else {
+            this.editPositionBtn.textContent = 'Edit Position';
+            this.editPositionBtn.style.background = '#2196F3';
+
+            // Reset all movement keys
+            Object.keys(this.keys).forEach(key => {
+                this.keys[key] = false;
+            });
+
+            // Update instructions in text input
+            this.updateInstructions(false);
+        }
+
+        console.log(`Position edit mode: ${this.positionEditMode ? 'ON' : 'OFF'}`);
     }
 
     endEdit() {
