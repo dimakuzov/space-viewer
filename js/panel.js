@@ -27,12 +27,12 @@ export class PanelObject {
     createPanel() {
         // Create canvas for text rendering with new dimensions
         this.canvas = document.createElement('canvas');
-        this.canvas.width = 192;
-        this.canvas.height = 128;
+        this.canvas.width = 384;
+        this.canvas.height = 256;
         this.ctx = this.canvas.getContext('2d');
 
         // Create geometry with adjusted size to match canvas aspect ratio
-        this.geometry = new PlaneGeometry(0.96, 0.64); // Reduced size: 0.96m x 0.64m panel
+        this.geometry = new PlaneGeometry(0.48, 0.32); // Reduced size: 0.96m x 0.64m panel
 
         // Create texture
         this.texture = new CanvasTexture(this.canvas);
@@ -63,13 +63,13 @@ export class PanelObject {
         // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Draw rounded rectangle with blur background
-        this.drawRoundedRect(ctx, 0, 0, canvas.width, canvas.height, borderRadius, 'rgba(0, 0, 0, 0.7)');
+        // Draw rounded rectangle with more transparent background
+        this.drawRoundedRect(ctx, 0, 0, canvas.width, canvas.height, borderRadius, 'rgba(0, 0, 0, 0.3)');
 
-        // Draw white border
+        // Draw white border with more transparency
         this.drawRoundedRectBorder(ctx, borderWidth/2, borderWidth/2,
             canvas.width - borderWidth, canvas.height - borderWidth,
-            borderRadius - borderWidth/2, 'rgba(255, 255, 255, 0.8)', borderWidth);
+            borderRadius - borderWidth/2, 'rgba(255, 255, 255, 0.6)', borderWidth);
 
         // Set text properties with Montserrat font
         ctx.fillStyle = 'white';

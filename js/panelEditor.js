@@ -123,22 +123,23 @@ export class PanelEditor {
     }
 
     createEditUI() {
-        // Create edit buttons container
+        // Create edit buttons container - positioned above text input
         this.editButtons = document.createElement('div');
         this.editButtons.className = 'panel-edit-buttons';
         this.editButtons.style.cssText = `
-            position: absolute;
-            top: 50%;
+            position: fixed;
+            bottom: 200px;
             left: 50%;
-            transform: translate(-50%, -120%);
+            transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.9);
             border-radius: 8px;
-            padding: 10px;
+            padding: 12px;
             display: flex;
-            gap: 6px;
+            gap: 8px;
             flex-wrap: wrap;
             justify-content: center;
-            z-index: 1000;
+            z-index: 1001;
+            max-width: 90vw;
         `;
 
         // Create buttons
@@ -163,19 +164,23 @@ export class PanelEditor {
             background: ${color};
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 10px 16px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
-            transition: opacity 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            min-width: 80px;
         `;
 
         button.addEventListener('mouseenter', () => {
             button.style.opacity = '0.8';
+            button.style.transform = 'translateY(-1px)';
         });
 
         button.addEventListener('mouseleave', () => {
             button.style.opacity = '1';
+            button.style.transform = 'translateY(0)';
         });
 
         button.addEventListener('click', onClick);
@@ -184,30 +189,29 @@ export class PanelEditor {
     }
 
     createTextInput() {
-        // Create text input overlay
+        // Create text input overlay at bottom of screen
         const overlay = document.createElement('div');
         overlay.className = 'panel-text-overlay';
         overlay.style.cssText = `
             position: fixed;
-            top: 0;
+            bottom: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 20px;
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
         `;
 
         const inputContainer = document.createElement('div');
         inputContainer.style.cssText = `
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
-            width: 90%;
+            border-radius: 12px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            margin: 0 auto;
         `;
 
         const label = document.createElement('label');
@@ -215,8 +219,9 @@ export class PanelEditor {
         label.style.cssText = `
             display: block;
             margin-bottom: 8px;
-            font-weight: bold;
+            font-weight: 600;
             color: #333;
+            font-size: 14px;
         `;
 
         this.textInput = document.createElement('textarea');
@@ -224,22 +229,25 @@ export class PanelEditor {
         this.textInput.maxLength = 200;
         this.textInput.style.cssText = `
             width: 100%;
-            height: 120px;
-            border: 2px solid #ddd;
-            border-radius: 4px;
-            padding: 8px;
-            font-family: Arial, sans-serif;
+            height: 80px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Montserrat', Arial, sans-serif;
             font-size: 14px;
-            resize: vertical;
+            resize: none;
             box-sizing: border-box;
+            transition: border-color 0.2s;
+            outline: none;
         `;
 
         const charCounter = document.createElement('div');
         charCounter.style.cssText = `
             text-align: right;
-            margin-top: 4px;
+            margin-top: 6px;
             font-size: 12px;
             color: #666;
+            font-weight: 500;
         `;
 
         const updateCharCounter = () => {
@@ -254,14 +262,25 @@ export class PanelEditor {
             this.selectedPanel.setText(this.textInput.value);
         });
 
+        this.textInput.addEventListener('focus', () => {
+            this.textInput.style.borderColor = '#4CAF50';
+        });
+
+        this.textInput.addEventListener('blur', () => {
+            this.textInput.style.borderColor = '#e0e0e0';
+        });
+
         updateCharCounter();
 
         this.instructions = document.createElement('div');
         this.instructions.style.cssText = `
-            margin-top: 10px;
+            margin-top: 12px;
             font-size: 12px;
             color: #666;
-            line-height: 1.4;
+            line-height: 1.5;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 10px;
+            border-radius: 6px;
         `;
         this.instructions.innerHTML = `
             <strong>Controls:</strong><br>
@@ -278,7 +297,7 @@ export class PanelEditor {
         inputContainer.appendChild(this.instructions);
         overlay.appendChild(inputContainer);
 
-        // Close on overlay click
+        // Close on overlay click (only on the overlay itself, not the container)
         overlay.addEventListener('click', (event) => {
             if (event.target === overlay) {
                 this.cancelEdit();
@@ -406,7 +425,7 @@ export class PanelEditor {
 
         if (positionEditMode) {
             this.instructions.innerHTML = `
-                <strong>Position Edit Mode Active:</strong><br>
+                <strong style="color: #FF9800;">Position Edit Mode Active:</strong><br>
                 • WASD - Move panel horizontally<br>
                 • R/F - Move panel up/down<br>
                 • Click "Exit Position Edit" to return to text editing<br>
@@ -414,31 +433,31 @@ export class PanelEditor {
             `;
             this.instructions.style.background = '#fff3cd';
             this.instructions.style.border = '1px solid #ffc107';
-            this.instructions.style.padding = '8px';
-            this.instructions.style.borderRadius = '4px';
 
             // Disable text input during position editing
             if (this.textInput) {
                 this.textInput.disabled = true;
                 this.textInput.style.background = '#f5f5f5';
+                this.textInput.style.color = '#666';
+                this.textInput.style.cursor = 'not-allowed';
             }
         } else {
             this.instructions.innerHTML = `
-                <strong>Text Edit Mode:</strong><br>
+                <strong style="color: #4CAF50;">Text Edit Mode:</strong><br>
                 • Type to edit panel text<br>
                 • Click "Edit Position" to move the panel<br>
                 • Ctrl+Enter - Save changes<br>
                 • Escape - Cancel editing
             `;
-            this.instructions.style.background = '';
-            this.instructions.style.border = '';
-            this.instructions.style.padding = '';
-            this.instructions.style.borderRadius = '';
+            this.instructions.style.background = 'rgba(0, 0, 0, 0.05)';
+            this.instructions.style.border = 'none';
 
             // Enable text input
             if (this.textInput) {
                 this.textInput.disabled = false;
                 this.textInput.style.background = '';
+                this.textInput.style.color = '';
+                this.textInput.style.cursor = '';
             }
         }
     }
