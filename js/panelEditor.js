@@ -128,7 +128,7 @@ export class PanelEditor {
         this.editButtons.className = 'panel-edit-buttons';
         this.editButtons.style.cssText = `
             position: fixed;
-            bottom: 380px;
+            bottom: 340px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.9);

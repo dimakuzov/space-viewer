@@ -40,15 +40,15 @@ export class PanelObject {
         // Use MeshPhysicalMaterial for blur effect
         this.material = new MeshPhysicalMaterial({
             map: this.texture,
-            transmission: 1.0,
-            roughness: 0.1,
-            thickness: 0.01,
+            transmission: 0.95,
+            roughness: 0.05,
+            thickness: 0.005,
             transparent: true,
-            opacity: 0.3,
-            alphaTest: 0.001,
+            opacity: 0.15,
+            alphaTest: 0.0001,
             side: 2, // DoubleSide
             ior: 1.5,
-            reflectivity: 0.1
+            reflectivity: 0.05
         });
 
         // Create mesh
@@ -69,14 +69,14 @@ export class PanelObject {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // Draw rounded rectangle with more transparent background
-        this.drawRoundedRect(ctx, 0, 0, canvas.width, canvas.height, borderRadius, 'rgba(0, 0, 0, 0.1)');
+        this.drawRoundedRect(ctx, 0, 0, canvas.width, canvas.height, borderRadius, 'rgba(0, 0, 30, 0.2)');
         this.drawRoundedRectBorder(ctx, borderWidth/2, borderWidth/2,
             canvas.width - borderWidth, canvas.height - borderWidth,
-            borderRadius - borderWidth/2, 'rgba(255, 255, 255, 0.3)', borderWidth);
+            borderRadius - borderWidth/2, 'rgba(255, 255, 255, 0.7)', borderWidth);
 
         // Set text properties with Montserrat font
         ctx.fillStyle = 'white';
-        ctx.font = '20px Montserrat, Arial, sans-serif';
+        ctx.font = '35px Montserrat, Arial, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
@@ -102,7 +102,7 @@ export class PanelObject {
         }
 
         // Draw text lines with doubled line height
-        const lineHeight = 48;
+        const lineHeight = 42;
         const startY = (canvas.height - (lines.length - 1) * lineHeight) / 2;
 
         lines.forEach((line, index) => {
