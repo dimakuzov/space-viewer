@@ -275,7 +275,7 @@ export class PanelEditor {
         inputContainer.appendChild(label);
         inputContainer.appendChild(this.textInput);
         inputContainer.appendChild(charCounter);
-        inputContainer.appendChild(instructions);
+        inputContainer.appendChild(this.instructions);
         overlay.appendChild(inputContainer);
 
         // Close on overlay click
