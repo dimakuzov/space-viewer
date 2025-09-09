@@ -1,6 +1,7 @@
 import {
     PlaneGeometry,
     MeshPhysicalMaterial,
+    MeshBasicMaterial,
     Mesh,
     Group,
     CanvasTexture,
