@@ -51,11 +51,11 @@ export class PanelObject {
         this.backgroundTexture = new CanvasTexture(this.backgroundCanvas);
         this.backgroundMaterial = new MeshPhysicalMaterial({
             map: this.backgroundTexture,
-            transmission: 0.55,
+            transmission: 0.05,
             roughness: 0.05,
             thickness: 0.005,
             transparent: true,
-            opacity: 0.15,
+            opacity: 0.05,
             alphaTest: 0.0001,
             side: 2, // DoubleSide
             ior: 1.5,
@@ -98,7 +98,7 @@ export class PanelObject {
 
     updateTexture() {
         const borderRadius = 15;
-        const borderWidth = 6;
+        const borderWidth = 7;
 
         // Clear all canvases
         this.backgroundCtx.clearRect(0, 0, 350, 190);

@@ -438,6 +438,7 @@ export class PanelEditor {
         } else {
             this.instructions.innerHTML = `
                 <strong style="color: #4CAF50;">Text Edit Mode:</strong><br>
+                Write a description and edit the position (press Edit Postion button)
             `;
             this.instructions.style.background = 'rgba(0, 0, 0, 0.05)';
             this.instructions.style.border = 'none';
