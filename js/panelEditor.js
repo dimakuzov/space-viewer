@@ -256,20 +256,21 @@ export class PanelEditor {
 
         updateCharCounter();
 
-        const instructions = document.createElement('div');
-        instructions.style.cssText = `
+        this.instructions = document.createElement('div');
+        this.instructions.style.cssText = `
             margin-top: 10px;
             font-size: 12px;
             color: #666;
             line-height: 1.4;
         `;
-        instructions.innerHTML = `
+        this.instructions.innerHTML = `
             <strong>Controls:</strong><br>
             • WASD - Move panel horizontally<br>
             • R/F - Move panel up/down<br>
             • Ctrl+Enter - Save changes<br>
             • Escape - Cancel editing
         `;
+        this.updateInstructions(false);
 
         inputContainer.appendChild(label);
         inputContainer.appendChild(this.textInput);
@@ -398,6 +399,48 @@ export class PanelEditor {
         }
 
         console.log(`Position edit mode: ${this.positionEditMode ? 'ON' : 'OFF'}`);
+    }
+
+    updateInstructions(positionEditMode) {
+        if (!this.instructions) return;
+
+        if (positionEditMode) {
+            this.instructions.innerHTML = `
+                <strong>Position Edit Mode Active:</strong><br>
+                • WASD - Move panel horizontally<br>
+                • R/F - Move panel up/down<br>
+                • Click "Exit Position Edit" to return to text editing<br>
+                • Text input is disabled during position editing
+            `;
+            this.instructions.style.background = '#fff3cd';
+            this.instructions.style.border = '1px solid #ffc107';
+            this.instructions.style.padding = '8px';
+            this.instructions.style.borderRadius = '4px';
+
+            // Disable text input during position editing
+            if (this.textInput) {
+                this.textInput.disabled = true;
+                this.textInput.style.background = '#f5f5f5';
+            }
+        } else {
+            this.instructions.innerHTML = `
+                <strong>Text Edit Mode:</strong><br>
+                • Type to edit panel text<br>
+                • Click "Edit Position" to move the panel<br>
+                • Ctrl+Enter - Save changes<br>
+                • Escape - Cancel editing
+            `;
+            this.instructions.style.background = '';
+            this.instructions.style.border = '';
+            this.instructions.style.padding = '';
+            this.instructions.style.borderRadius = '';
+
+            // Enable text input
+            if (this.textInput) {
+                this.textInput.disabled = false;
+                this.textInput.style.background = '';
+            }
+        }
     }
 
     endEdit() {
