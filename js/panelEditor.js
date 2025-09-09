@@ -126,7 +126,9 @@ export class PanelEditor {
             border-radius: 8px;
             padding: 10px;
             display: flex;
-            gap: 8px;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
             z-index: 1000;
         `;
 
@@ -134,10 +136,12 @@ export class PanelEditor {
         const cancelBtn = this.createButton('Cancel', '#f44336', () => this.cancelEdit());
         const saveBtn = this.createButton('Save', '#4CAF50', () => this.saveEdit());
         const deleteBtn = this.createButton('Delete', '#ff9800', () => this.deletePanel());
+        const editPositionBtn = this.createButton('Edit Position', '#2196F3', () => this.togglePositionEdit());
 
         this.editButtons.appendChild(cancelBtn);
         this.editButtons.appendChild(saveBtn);
         this.editButtons.appendChild(deleteBtn);
+        this.editButtons.appendChild(editPositionBtn);
 
         document.body.appendChild(this.editButtons);
     }
