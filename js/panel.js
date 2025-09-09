@@ -1,6 +1,6 @@
 import {
     PlaneGeometry,
-    MeshBasicMaterial,
+    MeshPhysicalMaterial,
     Mesh,
     Group,
     CanvasTexture,
@@ -25,17 +25,23 @@ export class PanelObject {
     }
 
     createPanel() {
-        // Create canvas for text rendering
+        // Create canvas for text rendering with new dimensions
         this.canvas = document.createElement('canvas');
         this.canvas.width = 192;
         this.canvas.height = 128;
         this.ctx = this.canvas.getContext('2d');
 
-        // Create geometry and material
-        this.geometry = new PlaneGeometry(1, 0.5); // 1m x 0.5m panel
+        // Create geometry with adjusted size to match canvas aspect ratio
+        this.geometry = new PlaneGeometry(0.96, 0.64); // Reduced size: 0.96m x 0.64m panel
+
+        // Create texture
         this.texture = new CanvasTexture(this.canvas);
-        this.material = new MeshBasicMaterial({
+
+        // Use MeshPhysicalMaterial for blur effect
+        this.material = new MeshPhysicalMaterial({
             map: this.texture,
+            transmission: 1,
+            roughness: 0.4,
             transparent: true,
             alphaTest: 0.1
         });
@@ -51,22 +57,23 @@ export class PanelObject {
     updateTexture() {
         const ctx = this.ctx;
         const canvas = this.canvas;
+        const borderRadius = 12;
+        const borderWidth = 3;
 
         // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Draw blur background
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Draw rounded rectangle with blur background
+        this.drawRoundedRect(ctx, 0, 0, canvas.width, canvas.height, borderRadius, 'rgba(0, 0, 0, 0.7)');
 
-        // Add subtle border
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+        // Draw white border
+        this.drawRoundedRectBorder(ctx, borderWidth/2, borderWidth/2,
+            canvas.width - borderWidth, canvas.height - borderWidth,
+            borderRadius - borderWidth/2, 'rgba(255, 255, 255, 0.8)', borderWidth);
 
-        // Set text properties
+        // Set text properties with Montserrat font
         ctx.fillStyle = 'white';
-        ctx.font = '24px Arial, sans-serif';
+        ctx.font = '20px Montserrat, Arial, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
@@ -92,7 +99,7 @@ export class PanelObject {
         }
 
         // Draw text lines
-        const lineHeight = 30;
+        const lineHeight = 24;
         const startY = (canvas.height - (lines.length - 1) * lineHeight) / 2;
 
         lines.forEach((line, index) => {
@@ -101,6 +108,43 @@ export class PanelObject {
 
         // Update texture
         this.texture.needsUpdate = true;
+    }
+
+    // Helper function to draw rounded rectangle
+    drawRoundedRect(ctx, x, y, width, height, radius, fillStyle) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+
+        ctx.fillStyle = fillStyle;
+        ctx.fill();
+    }
+
+    // Helper function to draw rounded rectangle border
+    drawRoundedRectBorder(ctx, x, y, width, height, radius, strokeStyle, lineWidth) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+
+        ctx.strokeStyle = strokeStyle;
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
     }
 
     setText(newText) {
