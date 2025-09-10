@@ -90,34 +90,46 @@ class LumaSceneApp {
     bindPanelEvents() {
         // Listen for panel creation events
         document.addEventListener('panelCreate', (event) => {
+            console.log('Panel create event received');
             this.createPanel(event.detail.position);
         });
 
         // Listen for panel edit events
         document.addEventListener('panelEdit', (event) => {
+            console.log('Panel edit event received');
             const panelGroup = event.detail.panelGroup;
             const panel = this.panels.get(panelGroup);
             if (panel) {
+                console.log('Starting panel edit for panel:', panel.id);
+                console.log('Panel current text:', panel.getText());
+                console.log('Panel current URL:', panel.getUrl());
                 this.panelEditor.startEdit(panel);
+            } else {
+                console.error('Panel not found in panels map');
             }
         });
 
         // Listen for panel URL click events (view mode)
         document.addEventListener('panelUrlClick', (event) => {
+            console.log('Panel URL click event received');
             const panelGroup = event.detail.panelGroup;
             const panel = this.panels.get(panelGroup);
             if (panel) {
                 this.handlePanelUrlClick(panel);
+            } else {
+                console.error('Panel not found for URL click');
             }
         });
 
         // Listen for panel deletion events
         document.addEventListener('panelDelete', (event) => {
+            console.log('Panel delete event received');
             this.deletePanel(event.detail.panel);
         });
 
         // Listen for object deletion events
         document.addEventListener('objectDelete', (event) => {
+            console.log('Object delete event received');
             this.deleteObject(event.detail.object);
         });
     }
@@ -152,6 +164,7 @@ class LumaSceneApp {
     }
 
     createPanel(position, text = 'New Panel', url = '') {
+        console.log('Creating panel at position:', position);
         const panel = new PanelObject(position, text, url);
         const group = panel.getGroup();
 
@@ -159,7 +172,13 @@ class LumaSceneApp {
         this.placedObjects.push(group);
         this.panels.set(group, panel);
 
-        console.log('Panel created at:', position);
+        console.log('Panel created successfully:');
+        console.log('- ID:', panel.id);
+        console.log('- Text:', panel.getText());
+        console.log('- URL:', panel.getUrl());
+        console.log('- Position:', position);
+        console.log('- Total panels:', this.panels.size);
+
         return panel;
     }
 
@@ -181,7 +200,8 @@ class LumaSceneApp {
         // Dispose resources
         panel.dispose();
 
-        console.log('Panel deleted');
+        console.log('Panel deleted:', panel.id);
+        console.log('Remaining panels:', this.panels.size);
     }
 
     deleteObject(object) {
@@ -266,15 +286,24 @@ class LumaSceneApp {
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        // Add debugging for mode changes
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Tab') {
+                console.log('Tab pressed - current mode:', this.isEditMode ? 'Edit' : 'View');
+            }
+        });
     }
 
     setEditMode(isEdit) {
+        console.log('Setting edit mode:', isEdit);
         this.isEditMode = isEdit;
         this.movementController.setEnabled(!isEdit);
         this.editorController.setEnabled(isEdit);
 
         // Exit panel editing when switching modes
         if (!isEdit && this.panelEditor.isEditing()) {
+            console.log('Exiting panel editing due to mode switch');
             this.panelEditor.cancelEdit();
         }
     }
@@ -303,16 +332,21 @@ class LumaSceneApp {
 
     // Method for SaveLoadController to get panels data
     getPanelsData() {
-        return this.getPanels().map(panel => panel.toJSON());
+        const panelsData = this.getPanels().map(panel => panel.toJSON());
+        console.log('Getting panels data:', panelsData.length, 'panels');
+        return panelsData;
     }
 
     // Method for SaveLoadController to load panels data
     loadPanelsData(panelsData) {
+        console.log('Loading panels data:', panelsData.length, 'panels');
+
         // Clear existing panels
         this.panels.forEach(panel => this.deletePanel(panel));
 
         // Load panels from data
         panelsData.forEach(data => {
+            console.log('Loading panel:', data);
             const panel = PanelObject.fromJSON(data);
             const group = panel.getGroup();
 
@@ -326,24 +360,29 @@ class LumaSceneApp {
 
     // Method for SaveLoadController to clear all panels
     clearAllPanels() {
+        console.log('Clearing all panels');
         this.panels.forEach(panel => this.deletePanel(panel));
         console.log('All panels cleared');
     }
 
     savePanelsData() {
         const panelsData = this.getPanels().map(panel => panel.toJSON());
+        console.log('Saving panels data:', panelsData);
         return panelsData;
     }
 
     saveColliderTransform() {
+        console.log('Saving collider transform and panels data');
         return this.saveLoadController.saveTransform();
     }
 
     loadColliderTransform() {
+        console.log('Loading collider transform and panels data');
         return this.saveLoadController.loadTransform();
     }
 
     resetColliderTransform() {
+        console.log('Resetting collider transform and panels data');
         return this.saveLoadController.resetTransform();
     }
 

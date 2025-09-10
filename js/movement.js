@@ -25,6 +25,9 @@ export class MovementController {
         this.velocity = new Vector3();
         this.direction = new Vector3();
 
+        // Pointer lock state tracking
+        this.pointerLockRequested = false;
+
         this.bindEvents();
     }
 
@@ -32,12 +35,47 @@ export class MovementController {
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
 
-        // Клик для захвата курсора в режиме просмотра
+        // Improved pointer lock handling
         document.addEventListener('click', (event) => {
-            if (this.enabled && event.target.tagName === 'CANVAS') {
-                this.controls.lock();
+            if (this.enabled && event.target.tagName === 'CANVAS' && !this.pointerLockRequested) {
+                this.requestPointerLock();
             }
         });
+
+        // Listen for pointer lock changes
+        document.addEventListener('pointerlockchange', this.onPointerLockChange.bind(this));
+        document.addEventListener('pointerlockerror', this.onPointerLockError.bind(this));
+    }
+
+    requestPointerLock() {
+        if (this.pointerLockRequested) return;
+
+        this.pointerLockRequested = true;
+
+        // Add a small delay to ensure the click event has fully processed
+        setTimeout(() => {
+            try {
+                this.controls.lock();
+            } catch (error) {
+                console.warn('Failed to request pointer lock:', error);
+                this.pointerLockRequested = false;
+            }
+        }, 100);
+    }
+
+    onPointerLockChange() {
+        if (document.pointerLockElement === document.body) {
+            console.log('Pointer locked successfully');
+            this.pointerLockRequested = false;
+        } else {
+            console.log('Pointer lock released');
+            this.pointerLockRequested = false;
+        }
+    }
+
+    onPointerLockError(event) {
+        console.warn('Pointer lock error:', event);
+        this.pointerLockRequested = false;
     }
 
     onKeyDown(event) {
@@ -113,7 +151,11 @@ export class MovementController {
             Object.keys(this.keys).forEach(key => {
                 this.keys[key] = false;
             });
-            this.controls.unlock();
+            // Unlock pointer when disabling movement
+            if (this.controls.isLocked) {
+                this.controls.unlock();
+            }
+            this.pointerLockRequested = false;
         }
     }
 

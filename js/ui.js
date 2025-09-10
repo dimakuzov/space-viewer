@@ -75,8 +75,16 @@ export class UIController {
     }
 
     onKeyDown(event) {
-        // Don't process hotkeys if panel editor is active
+        // Don't process hotkeys if panel editor is active or if typing in input fields
         if (this.app.panelEditor && this.app.panelEditor.isEditing()) {
+            return;
+        }
+
+        // Don't process if user is typing in any input field
+        if (document.activeElement && (
+            document.activeElement.tagName === 'INPUT' ||
+            document.activeElement.tagName === 'TEXTAREA'
+        )) {
             return;
         }
 
@@ -90,16 +98,20 @@ export class UIController {
         if (this.app.isEditMode) {
             switch(event.code) {
                 case 'Digit1':
+                    event.preventDefault();
                     this.selectObjectType('panel');
                     break;
                 case 'KeyX':
                 case 'Delete':
+                    event.preventDefault();
                     this.selectObjectType('delete');
                     break;
                 case 'KeyV':
+                    event.preventDefault();
                     this.toggleGLBVisibility();
                     break;
                 case 'KeyC':
+                    event.preventDefault();
                     this.toggleEditCollider();
                     break;
                 case 'KeyS':
@@ -225,24 +237,28 @@ export class UIController {
         if (success) {
             // Visual feedback
             const originalText = this.saveTransformBtn.textContent;
+            const originalBackground = this.saveTransformBtn.style.background;
+
             this.saveTransformBtn.textContent = 'Saved!';
             this.saveTransformBtn.style.background = '#4CAF50';
 
             setTimeout(() => {
                 this.saveTransformBtn.textContent = originalText;
-                this.saveTransformBtn.style.background = '';
+                this.saveTransformBtn.style.background = originalBackground;
             }, 1500);
 
             console.log('Collider transform saved successfully');
         } else {
             // Error feedback
             const originalText = this.saveTransformBtn.textContent;
+            const originalBackground = this.saveTransformBtn.style.background;
+
             this.saveTransformBtn.textContent = 'Error!';
             this.saveTransformBtn.style.background = '#f44336';
 
             setTimeout(() => {
                 this.saveTransformBtn.textContent = originalText;
-                this.saveTransformBtn.style.background = '';
+                this.saveTransformBtn.style.background = originalBackground;
             }, 1500);
 
             console.error('Failed to save collider transform');

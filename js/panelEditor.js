@@ -24,6 +24,7 @@ export class PanelEditor {
         this.editButtons = null;
         this.textInput = null;
         this.urlInput = null;
+        this.textOverlay = null;
         this.originalText = '';
         this.originalUrl = '';
 
@@ -122,6 +123,8 @@ export class PanelEditor {
         this.originalUrl = panel.getUrl();
 
         console.log('Started editing panel:', panel.id);
+        console.log('Panel text:', this.originalText);
+        console.log('Panel URL:', this.originalUrl);
 
         this.createEditUI();
         this.createTextInput();
@@ -133,7 +136,7 @@ export class PanelEditor {
         this.editButtons.className = 'panel-edit-buttons';
         this.editButtons.style.cssText = `
             position: fixed;
-            bottom: 350px;
+            bottom: 400px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.9);
@@ -160,6 +163,7 @@ export class PanelEditor {
         this.editPositionBtn = editPositionBtn;
 
         document.body.appendChild(this.editButtons);
+        console.log('Edit buttons created');
     }
 
     createButton(text, color, onClick) {
@@ -194,15 +198,23 @@ export class PanelEditor {
     }
 
     createTextInput() {
+        console.log('Creating text input overlay...');
+
+        // Remove any existing overlay first
+        if (this.textOverlay) {
+            this.textOverlay.remove();
+            this.textOverlay = null;
+        }
+
         // Create text input overlay at bottom of screen
-        const overlay = document.createElement('div');
-        overlay.className = 'panel-text-overlay';
-        overlay.style.cssText = `
+        this.textOverlay = document.createElement('div');
+        this.textOverlay.className = 'panel-text-overlay';
+        this.textOverlay.style.cssText = `
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(10px);
             z-index: 1000;
             padding: 20px;
@@ -212,7 +224,7 @@ export class PanelEditor {
         const inputContainer = document.createElement('div');
         inputContainer.style.cssText = `
             background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
+            padding: 25px;
             border-radius: 12px;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
             max-width: 800px;
@@ -251,7 +263,7 @@ export class PanelEditor {
         textCharCounter.style.cssText = `
             text-align: right;
             margin-top: 6px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             font-size: 12px;
             color: #666;
             font-weight: 500;
@@ -270,12 +282,12 @@ export class PanelEditor {
 
         this.urlInput = document.createElement('input');
         this.urlInput.type = 'url';
-        this.urlInput.value = this.selectedPanel.getUrl();
+        this.urlInput.value = this.selectedPanel.getUrl() || '';
         this.urlInput.maxLength = 500;
-        this.urlInput.placeholder = 'https://example.com';
+        this.urlInput.placeholder = 'https://example.com (optional)';
         this.urlInput.style.cssText = `
             width: 100%;
-            height: 40px;
+            height: 45px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             padding: 12px;
@@ -290,6 +302,7 @@ export class PanelEditor {
         urlCharCounter.style.cssText = `
             text-align: right;
             margin-top: 6px;
+            margin-bottom: 15px;
             font-size: 12px;
             color: #666;
             font-weight: 500;
@@ -340,21 +353,17 @@ export class PanelEditor {
 
         this.instructions = document.createElement('div');
         this.instructions.style.cssText = `
-            margin-top: 12px;
+            margin-top: 15px;
             font-size: 12px;
             color: #666;
             line-height: 1.5;
             background: rgba(0, 0, 0, 0.05);
-            padding: 10px;
+            padding: 12px;
             border-radius: 6px;
-        `;
-        this.instructions.innerHTML = `
-            <strong>Controls:</strong><br>
-            WASD - Move panel horizontally, R/F - Move panel up/down, Escape - Cancel editing<br>
-            <strong>URL Info:</strong> Panels with URLs will show a green border and link icon. Click panel in view mode to open URL.
         `;
         this.updateInstructions(false);
 
+        // Build the container
         inputContainer.appendChild(textLabel);
         inputContainer.appendChild(this.textInput);
         inputContainer.appendChild(textCharCounter);
@@ -362,20 +371,27 @@ export class PanelEditor {
         inputContainer.appendChild(this.urlInput);
         inputContainer.appendChild(urlCharCounter);
         inputContainer.appendChild(this.instructions);
-        overlay.appendChild(inputContainer);
+        this.textOverlay.appendChild(inputContainer);
 
         // Close on overlay click (only on the overlay itself, not the container)
-        overlay.addEventListener('click', (event) => {
-            if (event.target === overlay) {
+        this.textOverlay.addEventListener('click', (event) => {
+            if (event.target === this.textOverlay) {
                 this.cancelEdit();
             }
         });
 
-        document.body.appendChild(overlay);
-        this.textOverlay = overlay;
+        document.body.appendChild(this.textOverlay);
+
+        console.log('Text input overlay created and added to DOM');
+        console.log('URL input value:', this.urlInput.value);
 
         // Focus the text input
-        setTimeout(() => this.textInput.focus(), 100);
+        setTimeout(() => {
+            if (this.textInput) {
+                this.textInput.focus();
+                this.textInput.select();
+            }
+        }, 150);
     }
 
     updateMovement() {
@@ -437,6 +453,8 @@ export class PanelEditor {
         if (!this.selectedPanel) return;
 
         console.log('Panel changes saved');
+        console.log('Final text:', this.selectedPanel.getText());
+        console.log('Final URL:', this.selectedPanel.getUrl());
         this.endEdit();
     }
 
@@ -470,7 +488,7 @@ export class PanelEditor {
             this.editPositionBtn.textContent = 'Exit Position Edit';
             this.editPositionBtn.style.background = '#FF9800';
 
-            // Update instructions in text input
+            // Update instructions
             this.updateInstructions(true);
         } else {
             this.editPositionBtn.textContent = 'Edit Position';
@@ -481,7 +499,7 @@ export class PanelEditor {
                 this.keys[key] = false;
             });
 
-            // Update instructions in text input
+            // Update instructions
             this.updateInstructions(false);
         }
 
@@ -565,6 +583,8 @@ export class PanelEditor {
         this.urlInput = null;
         this.editPositionBtn = null;
         this.instructions = null;
+
+        console.log('Panel editing ended, UI cleaned up');
     }
 
     isEditing() {
