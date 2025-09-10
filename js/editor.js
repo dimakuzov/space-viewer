@@ -231,25 +231,31 @@ export class EditorController {
     }
 
     onClick(event) {
-        if (!this.enabled || this.colliderEditMode) return;
-
         // Check if click was on UI element
         if (this.isClickOnUI(event)) {
             console.log('Click on UI element - ignoring interaction');
             return;
         }
 
+        // Handle clicks differently based on edit mode and collider edit mode
+        if (this.colliderEditMode) return; // No clicks when in collider edit mode
+
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
         this.raycaster.setFromCamera(this.mouse, this.camera);
 
-        if (this.selectedObjectType === 'delete') {
-            this.deleteObject();
-        } else if (this.selectedObjectType === 'panel') {
-            // Check if we clicked on an existing panel first
-            const panelClicked = this.checkPanelClick();
-            if (!panelClicked) {
+        // Handle panel clicks for both edit and view modes
+        const panelClicked = this.checkPanelClick();
+        if (panelClicked) {
+            return; // Panel interaction handled
+        }
+
+        // Only handle object placement/deletion in edit mode
+        if (this.enabled) {
+            if (this.selectedObjectType === 'delete') {
+                this.deleteObject();
+            } else if (this.selectedObjectType === 'panel') {
                 this.placePanel();
             }
         }
@@ -303,8 +309,13 @@ export class EditorController {
             const panel = this.placedObjects.find(obj => obj === panelGroup);
 
             if (panel && panel.userData.type === 'panel') {
-                // Start editing this panel
-                this.editPanel(panel);
+                if (this.enabled) {
+                    // Edit mode - start editing this panel
+                    this.editPanel(panel);
+                } else {
+                    // View mode - try to open URL if panel has one
+                    this.openPanelUrl(panel);
+                }
                 return true;
             }
         }
@@ -316,6 +327,14 @@ export class EditorController {
         // Find the PanelObject that corresponds to this group
         // We need to dispatch an event to the main app to handle this
         const event = new CustomEvent('panelEdit', {
+            detail: { panelGroup: panelGroup }
+        });
+        document.dispatchEvent(event);
+    }
+
+    openPanelUrl(panelGroup) {
+        // Dispatch event to handle URL opening in view mode
+        const event = new CustomEvent('panelUrlClick', {
             detail: { panelGroup: panelGroup }
         });
         document.dispatchEvent(event);

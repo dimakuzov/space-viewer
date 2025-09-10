@@ -23,7 +23,9 @@ export class PanelEditor {
 
         this.editButtons = null;
         this.textInput = null;
+        this.urlInput = null;
         this.originalText = '';
+        this.originalUrl = '';
 
         this.bindEvents();
     }
@@ -36,7 +38,8 @@ export class PanelEditor {
     onKeyDown(event) {
         if (!this.editMode || !this.selectedPanel) return;
 
-        if (this.textInput && document.activeElement === this.textInput) {
+        if ((this.textInput && document.activeElement === this.textInput) ||
+            (this.urlInput && document.activeElement === this.urlInput)) {
             return;
         }
 
@@ -81,7 +84,8 @@ export class PanelEditor {
     onKeyUp(event) {
         if (!this.editMode || !this.selectedPanel) return;
 
-        if (this.textInput && document.activeElement === this.textInput) {
+        if ((this.textInput && document.activeElement === this.textInput) ||
+            (this.urlInput && document.activeElement === this.urlInput)) {
             return;
         }
 
@@ -115,6 +119,7 @@ export class PanelEditor {
         this.selectedPanel = panel;
         this.editMode = true;
         this.originalText = panel.getText();
+        this.originalUrl = panel.getUrl();
 
         console.log('Started editing panel:', panel.id);
 
@@ -128,7 +133,7 @@ export class PanelEditor {
         this.editButtons.className = 'panel-edit-buttons';
         this.editButtons.style.cssText = `
             position: fixed;
-            bottom: 300px;
+            bottom: 350px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.9);
@@ -214,9 +219,10 @@ export class PanelEditor {
             margin: 0 auto;
         `;
 
-        const label = document.createElement('label');
-        label.textContent = 'Panel Text (max 200 characters):';
-        label.style.cssText = `
+        // Text input section
+        const textLabel = document.createElement('label');
+        textLabel.textContent = 'Panel Text (max 200 characters):';
+        textLabel.style.cssText = `
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
@@ -241,8 +247,47 @@ export class PanelEditor {
             outline: none;
         `;
 
-        const charCounter = document.createElement('div');
-        charCounter.style.cssText = `
+        const textCharCounter = document.createElement('div');
+        textCharCounter.style.cssText = `
+            text-align: right;
+            margin-top: 6px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        `;
+
+        // URL input section
+        const urlLabel = document.createElement('label');
+        urlLabel.textContent = 'Panel URL (optional, max 500 characters):';
+        urlLabel.style.cssText = `
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        `;
+
+        this.urlInput = document.createElement('input');
+        this.urlInput.type = 'url';
+        this.urlInput.value = this.selectedPanel.getUrl();
+        this.urlInput.maxLength = 500;
+        this.urlInput.placeholder = 'https://example.com';
+        this.urlInput.style.cssText = `
+            width: 100%;
+            height: 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Montserrat', Arial, sans-serif;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+            outline: none;
+        `;
+
+        const urlCharCounter = document.createElement('div');
+        urlCharCounter.style.cssText = `
             text-align: right;
             margin-top: 6px;
             font-size: 12px;
@@ -250,16 +295,28 @@ export class PanelEditor {
             font-weight: 500;
         `;
 
-        const updateCharCounter = () => {
+        const updateTextCharCounter = () => {
             const remaining = 200 - this.textInput.value.length;
-            charCounter.textContent = `${remaining} characters remaining`;
-            charCounter.style.color = remaining < 20 ? '#f44336' : '#666';
+            textCharCounter.textContent = `${remaining} characters remaining`;
+            textCharCounter.style.color = remaining < 20 ? '#f44336' : '#666';
+        };
+
+        const updateUrlCharCounter = () => {
+            const remaining = 500 - this.urlInput.value.length;
+            urlCharCounter.textContent = `${remaining} characters remaining`;
+            urlCharCounter.style.color = remaining < 50 ? '#f44336' : '#666';
         };
 
         this.textInput.addEventListener('input', () => {
-            updateCharCounter();
+            updateTextCharCounter();
             // Update panel text in real-time
             this.selectedPanel.setText(this.textInput.value);
+        });
+
+        this.urlInput.addEventListener('input', () => {
+            updateUrlCharCounter();
+            // Update panel URL in real-time
+            this.selectedPanel.setUrl(this.urlInput.value);
         });
 
         this.textInput.addEventListener('focus', () => {
@@ -270,7 +327,16 @@ export class PanelEditor {
             this.textInput.style.borderColor = '#e0e0e0';
         });
 
-        updateCharCounter();
+        this.urlInput.addEventListener('focus', () => {
+            this.urlInput.style.borderColor = '#4CAF50';
+        });
+
+        this.urlInput.addEventListener('blur', () => {
+            this.urlInput.style.borderColor = '#e0e0e0';
+        });
+
+        updateTextCharCounter();
+        updateUrlCharCounter();
 
         this.instructions = document.createElement('div');
         this.instructions.style.cssText = `
@@ -284,13 +350,17 @@ export class PanelEditor {
         `;
         this.instructions.innerHTML = `
             <strong>Controls:</strong><br>
-            WASD - Move panel horizontally, R/F - Move panel up/down, Escape - Cancel editing
+            WASD - Move panel horizontally, R/F - Move panel up/down, Escape - Cancel editing<br>
+            <strong>URL Info:</strong> Panels with URLs will show a green border and link icon. Click panel in view mode to open URL.
         `;
         this.updateInstructions(false);
 
-        inputContainer.appendChild(label);
+        inputContainer.appendChild(textLabel);
         inputContainer.appendChild(this.textInput);
-        inputContainer.appendChild(charCounter);
+        inputContainer.appendChild(textCharCounter);
+        inputContainer.appendChild(urlLabel);
+        inputContainer.appendChild(this.urlInput);
+        inputContainer.appendChild(urlCharCounter);
         inputContainer.appendChild(this.instructions);
         overlay.appendChild(inputContainer);
 
@@ -373,8 +443,9 @@ export class PanelEditor {
     cancelEdit() {
         if (!this.selectedPanel) return;
 
-        // Restore original text
+        // Restore original text and URL
         this.selectedPanel.setText(this.originalText);
+        this.selectedPanel.setUrl(this.originalUrl);
         console.log('Panel editing cancelled');
         this.endEdit();
     }
@@ -423,32 +494,46 @@ export class PanelEditor {
         if (positionEditMode) {
             this.instructions.innerHTML = `
                 <strong style="color: #FF9800;">Position Edit Mode Active:</strong><br>
-                WASD - Move panel horizontally, R/F - Move panel up/down, Escape - Cancel editing
+                WASD - Move panel horizontally, R/F - Move panel up/down, Escape - Cancel editing<br>
+                <strong>URL Info:</strong> Panels with URLs will show a green border and link icon.
             `;
             this.instructions.style.background = '#fff3cd';
             this.instructions.style.border = '1px solid #ffc107';
 
-            // Disable text input during position editing
+            // Disable text inputs during position editing
             if (this.textInput) {
                 this.textInput.disabled = true;
                 this.textInput.style.background = '#f5f5f5';
                 this.textInput.style.color = '#666';
                 this.textInput.style.cursor = 'not-allowed';
             }
+            if (this.urlInput) {
+                this.urlInput.disabled = true;
+                this.urlInput.style.background = '#f5f5f5';
+                this.urlInput.style.color = '#666';
+                this.urlInput.style.cursor = 'not-allowed';
+            }
         } else {
             this.instructions.innerHTML = `
-                <strong style="color: #4CAF50;">Text Edit Mode:</strong><br>
-                Write a description and edit the position (press Edit Postion button)
+                <strong style="color: #4CAF50;">Text & URL Edit Mode:</strong><br>
+                Edit the panel text and URL, then use Edit Position button to move the panel<br>
+                <strong>URL Info:</strong> Panels with URLs will show a green border and link icon. Click panel in view mode to open URL.
             `;
             this.instructions.style.background = 'rgba(0, 0, 0, 0.05)';
             this.instructions.style.border = 'none';
 
-            // Enable text input
+            // Enable text inputs
             if (this.textInput) {
                 this.textInput.disabled = false;
                 this.textInput.style.background = '';
                 this.textInput.style.color = '';
                 this.textInput.style.cursor = '';
+            }
+            if (this.urlInput) {
+                this.urlInput.disabled = false;
+                this.urlInput.style.background = '';
+                this.urlInput.style.color = '';
+                this.urlInput.style.cursor = '';
             }
         }
     }
@@ -458,6 +543,7 @@ export class PanelEditor {
         this.positionEditMode = false;
         this.selectedPanel = null;
         this.originalText = '';
+        this.originalUrl = '';
 
         // Reset all keys
         Object.keys(this.keys).forEach(key => {
@@ -476,6 +562,7 @@ export class PanelEditor {
         }
 
         this.textInput = null;
+        this.urlInput = null;
         this.editPositionBtn = null;
         this.instructions = null;
     }

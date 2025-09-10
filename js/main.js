@@ -80,6 +80,9 @@ class LumaSceneApp {
         this.saveLoadController = new SaveLoadController();
         this.uiController = new UIController(this);
 
+        // Set text panel controller reference for save/load
+        this.saveLoadController.setTextPanelController(this);
+
         // Bind panel events
         this.bindPanelEvents();
     }
@@ -99,6 +102,15 @@ class LumaSceneApp {
             }
         });
 
+        // Listen for panel URL click events (view mode)
+        document.addEventListener('panelUrlClick', (event) => {
+            const panelGroup = event.detail.panelGroup;
+            const panel = this.panels.get(panelGroup);
+            if (panel) {
+                this.handlePanelUrlClick(panel);
+            }
+        });
+
         // Listen for panel deletion events
         document.addEventListener('panelDelete', (event) => {
             this.deletePanel(event.detail.panel);
@@ -110,8 +122,37 @@ class LumaSceneApp {
         });
     }
 
-    createPanel(position, text = 'New Panel') {
-        const panel = new PanelObject(position, text);
+    handlePanelUrlClick(panel) {
+        if (panel.hasUrl()) {
+            const success = panel.openUrl();
+            if (success) {
+                console.log(`Opened URL for panel ${panel.id}: ${panel.getUrl()}`);
+
+                // Visual feedback - briefly highlight the panel border
+                this.showPanelClickFeedback(panel);
+            } else {
+                console.warn(`Failed to open URL for panel ${panel.id}: ${panel.getUrl()}`);
+                // You could show an error message to the user here
+            }
+        } else {
+            console.log(`Panel ${panel.id} clicked but has no URL`);
+            // You could show a message that there's no link here
+        }
+    }
+
+    showPanelClickFeedback(panel) {
+        // This is a simple visual feedback - you could enhance this
+        // For now, we'll just log it, but you could add visual effects
+        console.log(`Panel ${panel.id} clicked - URL opening...`);
+
+        // You could add temporary visual effects here, such as:
+        // - Briefly changing the panel's opacity
+        // - Adding a temporary glow effect
+        // - Showing a brief "opening link" message
+    }
+
+    createPanel(position, text = 'New Panel', url = '') {
+        const panel = new PanelObject(position, text, url);
         const group = panel.getGroup();
 
         this.scene.add(group);
@@ -260,11 +301,12 @@ class LumaSceneApp {
         return Array.from(this.panels.values());
     }
 
-    savePanelsData() {
-        const panelsData = this.getPanels().map(panel => panel.toJSON());
-        return panelsData;
+    // Method for SaveLoadController to get panels data
+    getPanelsData() {
+        return this.getPanels().map(panel => panel.toJSON());
     }
 
+    // Method for SaveLoadController to load panels data
     loadPanelsData(panelsData) {
         // Clear existing panels
         this.panels.forEach(panel => this.deletePanel(panel));
@@ -278,6 +320,19 @@ class LumaSceneApp {
             this.placedObjects.push(group);
             this.panels.set(group, panel);
         });
+
+        console.log(`Loaded ${panelsData.length} panels from saved data`);
+    }
+
+    // Method for SaveLoadController to clear all panels
+    clearAllPanels() {
+        this.panels.forEach(panel => this.deletePanel(panel));
+        console.log('All panels cleared');
+    }
+
+    savePanelsData() {
+        const panelsData = this.getPanels().map(panel => panel.toJSON());
+        return panelsData;
     }
 
     saveColliderTransform() {

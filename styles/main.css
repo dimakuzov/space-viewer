@@ -187,19 +187,45 @@ canvas {
     font-family: Arial, sans-serif;
 }
 
-.panel-text-overlay textarea {
+.panel-text-overlay textarea,
+.panel-text-overlay input {
     font-family: Arial, sans-serif;
 }
 
-.panel-text-overlay textarea:focus {
+.panel-text-overlay textarea:focus,
+.panel-text-overlay input:focus {
     outline: none;
     border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
-.panel-text-overlay textarea:disabled {
+.panel-text-overlay textarea:disabled,
+.panel-text-overlay input:disabled {
     background-color: #f5f5f5 !important;
     color: #666;
     cursor: not-allowed;
+}
+
+/* URL input specific styles */
+.panel-text-overlay input[type="url"] {
+    background-image: url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'></path><path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'></path></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+.panel-text-overlay input[type="url"]:focus {
+    background-image: url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234CAF50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'></path><path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'></path></svg>");
+}
+
+.panel-text-overlay input[type="url"]:invalid {
+    border-color: #f44336;
+}
+
+.panel-text-overlay input[type="url"]:invalid:focus {
+    border-color: #f44336;
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
 }
 
 /* Additional responsive styles for panel editing */
