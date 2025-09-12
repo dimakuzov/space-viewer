@@ -254,6 +254,44 @@ export class PanelEditor {
             font-weight: 500;
         `;
 
+        const urlLabel = document.createElement('label');
+        urlLabel.textContent = 'Panel URL (optional, max 500 characters):';
+        urlLabel.style.cssText = `
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        `;
+
+        this.urlInput = document.createElement('input');
+        this.urlInput.type = 'url';
+        this.urlInput.value = this.selectedPanel.getUrl();
+        this.urlInput.maxLength = 500;
+        this.urlInput.placeholder = 'https://example.com or example.com (optional)';
+        this.urlInput.style.cssText = `
+            width: 100%;
+            height: 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 0 12px;
+            font-family: 'Montserrat', Arial, sans-serif;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+            outline: none;
+            margin-bottom: 15px;
+        `;
+
+        const urlCharCounter = document.createElement('div');
+        urlCharCounter.style.cssText = `
+            text-align: right;
+            margin-bottom: 15px;
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        `;
+
         const updateCharCounter = () => {
             const remaining = 200 - this.textInput.value.length;
             charCounter.textContent = `${remaining} characters remaining`;
@@ -274,6 +312,28 @@ export class PanelEditor {
             this.textInput.style.borderColor = '#e0e0e0';
         });
 
+        const updateUrlCharCounter = () => {
+            const remaining = 500 - this.urlInput.value.length;
+            urlCharCounter.textContent = `${remaining} characters remaining`;
+            urlCharCounter.style.color = remaining < 50 ? '#f44336' : '#666';
+        };
+
+        // Real-time URL updates
+        this.urlInput.addEventListener('input', () => {
+            updateUrlCharCounter();
+            this.selectedPanel.setUrl(this.urlInput.value);
+        });
+
+        // Focus/blur styling
+        this.urlInput.addEventListener('focus', () => {
+            this.urlInput.style.borderColor = '#4CAF50';
+        });
+
+        this.urlInput.addEventListener('blur', () => {
+            this.urlInput.style.borderColor = '#e0e0e0';
+        });
+
+        updateUrlCharCounter();
         updateCharCounter();
 
         this.instructions = document.createElement('div');
@@ -314,67 +374,6 @@ export class PanelEditor {
         // Focus the text input
         setTimeout(() => this.textInput.focus(), 100);
 
-        // URL input section
-        const urlLabel = document.createElement('label');
-        urlLabel.textContent = 'Panel URL (optional, max 500 characters):';
-        urlLabel.style.cssText = `
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-            font-size: 14px;
-        `;
-
-        this.urlInput = document.createElement('input');
-        this.urlInput.type = 'url';
-        this.urlInput.value = this.selectedPanel.getUrl();
-        this.urlInput.maxLength = 500;
-        this.urlInput.placeholder = 'https://example.com or example.com (optional)';
-        this.urlInput.style.cssText = `
-            width: 100%;
-            height: 40px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 0 12px;
-            font-family: 'Montserrat', Arial, sans-serif;
-            font-size: 14px;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
-            outline: none;
-            margin-bottom: 15px;
-        `;
-
-        const urlCharCounter = document.createElement('div');
-        urlCharCounter.style.cssText = `
-            text-align: right;
-            margin-bottom: 15px;
-            font-size: 12px;
-            color: #666;
-            font-weight: 500;
-        `;
-
-        const updateUrlCharCounter = () => {
-            const remaining = 500 - this.urlInput.value.length;
-            urlCharCounter.textContent = `${remaining} characters remaining`;
-            urlCharCounter.style.color = remaining < 50 ? '#f44336' : '#666';
-        };
-
-        // Real-time URL updates
-        this.urlInput.addEventListener('input', () => {
-            updateUrlCharCounter();
-            this.selectedPanel.setUrl(this.urlInput.value);
-        });
-
-        // Focus/blur styling
-        this.urlInput.addEventListener('focus', () => {
-            this.urlInput.style.borderColor = '#4CAF50';
-        });
-
-        this.urlInput.addEventListener('blur', () => {
-            this.urlInput.style.borderColor = '#e0e0e0';
-        });
-
-        updateUrlCharCounter();
     }
 
     updateMovement() {
