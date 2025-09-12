@@ -132,7 +132,7 @@ export class PanelEditor {
         this.editButtons.className = 'panel-edit-buttons';
         this.editButtons.style.cssText = `
             position: fixed;
-            bottom: 300px;
+            bottom: 320px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.9);
@@ -273,15 +273,6 @@ export class PanelEditor {
             margin-bottom: 15px;
         `;
 
-        const urlCharCounter = document.createElement('div');
-        urlCharCounter.style.cssText = `
-            text-align: right;
-            margin-bottom: 15px;
-            font-size: 12px;
-            color: #666;
-            font-weight: 500;
-        `;
-
         const updateCharCounter = () => {
             const remaining = 200 - this.textInput.value.length;
             charCounter.textContent = `${remaining} characters remaining`;
@@ -302,15 +293,8 @@ export class PanelEditor {
             this.textInput.style.borderColor = '#e0e0e0';
         });
 
-        const updateUrlCharCounter = () => {
-            const remaining = 500 - this.urlInput.value.length;
-            urlCharCounter.textContent = `${remaining} characters remaining`;
-            urlCharCounter.style.color = remaining < 50 ? '#f44336' : '#666';
-        };
-
         // Real-time URL updates
         this.urlInput.addEventListener('input', () => {
-            updateUrlCharCounter();
             this.selectedPanel.setUrl(this.urlInput.value);
         });
 
@@ -323,7 +307,6 @@ export class PanelEditor {
             this.urlInput.style.borderColor = '#e0e0e0';
         });
 
-        updateUrlCharCounter();
         updateCharCounter();
 
         this.instructions = document.createElement('div');
@@ -346,7 +329,6 @@ export class PanelEditor {
         inputContainer.appendChild(this.textInput);
         inputContainer.appendChild(charCounter);
         inputContainer.appendChild(this.urlInput);
-        inputContainer.appendChild(urlCharCounter);
         inputContainer.appendChild(this.instructions);
         overlay.appendChild(inputContainer);
 

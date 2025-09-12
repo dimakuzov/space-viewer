@@ -111,7 +111,7 @@ export class PanelObject {
         this.drawRoundedRect(this.backgroundCtx, 0, 0, 350, 190, borderRadius, 'rgba(0, 0, 30, 0.8)');
 
         // Choose border color based on whether panel has URL
-        const borderColor = this.url ? 'rgba(128, 137, 239, 1.0)' : 'rgba(255, 255, 255, 1.0)';
+        const borderColor = this.url ? 'rgba(90, 100, 239, 1.0)' : 'rgba(255, 255, 255, 1.0)';
 
         // Draw border (green if has URL, white if no URL)
         this.drawRoundedRectBorder(this.borderCtx, borderWidth/2, borderWidth/2,
