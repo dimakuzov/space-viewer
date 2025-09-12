@@ -9,10 +9,12 @@ import {
 } from 'three';
 
 export class PanelObject {
-    constructor(position, text = 'Sample Text', id = null) {
+    constructor(position, text = 'Sample Text', url = '', id = null) {
         this.id = id || Date.now();
         this.text = text;
+        this.url = url;
         this.maxTextLength = 200;
+        this.maxUrlLength = 500;
 
         this.group = new Group();
         this.group.userData = {
@@ -108,10 +110,13 @@ export class PanelObject {
         // Draw background (transparent)
         this.drawRoundedRect(this.backgroundCtx, 0, 0, 350, 190, borderRadius, 'rgba(0, 0, 30, 0.8)');
 
-        // Draw border (opaque white)
+        // Choose border color based on whether panel has URL
+        const borderColor = this.url ? 'rgba(0, 255, 0, 1.0)' : 'rgba(255, 255, 255, 1.0)';
+
+        // Draw border (green if has URL, white if no URL)
         this.drawRoundedRectBorder(this.borderCtx, borderWidth/2, borderWidth/2,
             350 - borderWidth, 190 - borderWidth,
-            borderRadius - borderWidth/2, 'rgba(255, 255, 255, 1.0)', borderWidth);
+            borderRadius - borderWidth/2, borderColor, borderWidth);
 
         // Draw text (opaque white)
         this.textCtx.fillStyle = 'rgba(255, 255, 255, 1.0)';
@@ -119,7 +124,7 @@ export class PanelObject {
         this.textCtx.textAlign = 'center';
         this.textCtx.textBaseline = 'middle';
 
-        // Word wrap and draw text (same logic as before)
+        // Word wrap and draw text
         const words = this.text.split(' ');
         const lines = [];
         let currentLine = '';
@@ -141,11 +146,23 @@ export class PanelObject {
         }
 
         const lineHeight = 40;
-        const startY = (190 - (lines.length - 1) * lineHeight) / 2;
+        let startY = (190 - (lines.length - 1) * lineHeight) / 2;
+
+        // If there's a URL, adjust text position to make room for URL indicator
+        if (this.url) {
+            startY -= 10; // Move text up slightly
+        }
 
         lines.forEach((line, index) => {
             this.textCtx.fillText(line, 350 / 2, startY + index * lineHeight);
         });
+
+        // Add URL indicator if URL exists
+        if (this.url) {
+            this.textCtx.font = '16px Montserrat, Arial, sans-serif';
+            this.textCtx.fillStyle = 'rgba(0, 255, 0, 1.0)';
+            this.textCtx.fillText('🔗 Click to open link', 350 / 2, 170);
+        }
 
         // Update all textures
         this.backgroundTexture.needsUpdate = true;
@@ -200,6 +217,40 @@ export class PanelObject {
         return this.text;
     }
 
+    setUrl(newUrl) {
+        // Limit URL length and trim whitespace
+        this.url = newUrl.trim().substring(0, this.maxUrlLength);
+        this.updateTexture();
+    }
+
+    getUrl() {
+        return this.url;
+    }
+
+    hasUrl() {
+        return this.url && this.url.length > 0;
+    }
+
+    openUrl() {
+        if (this.hasUrl()) {
+            // Ensure URL has protocol
+            let url = this.url;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+
+            try {
+                window.open(url, '_blank', 'noopener,noreferrer');
+                console.log(`Opened URL: ${url}`);
+                return true;
+            } catch (error) {
+                console.error('Failed to open URL:', error);
+                return false;
+            }
+        }
+        return false;
+    }
+
     getGroup() {
         return this.group;
     }
@@ -231,8 +282,12 @@ export class PanelObject {
     // Dispose resources
     dispose() {
         if (this.geometry) this.geometry.dispose();
-        if (this.material) this.material.dispose();
-        if (this.texture) this.texture.dispose();
+        if (this.backgroundMaterial) this.backgroundMaterial.dispose();
+        if (this.borderMaterial) this.borderMaterial.dispose();
+        if (this.textMaterial) this.textMaterial.dispose();
+        if (this.backgroundTexture) this.backgroundTexture.dispose();
+        if (this.borderTexture) this.borderTexture.dispose();
+        if (this.textTexture) this.textTexture.dispose();
     }
 
     // Get data for saving
@@ -240,6 +295,7 @@ export class PanelObject {
         return {
             id: this.id,
             text: this.text,
+            url: this.url,
             position: {
                 x: this.group.position.x,
                 y: this.group.position.y,
@@ -252,7 +308,7 @@ export class PanelObject {
     // Create from saved data
     static fromJSON(data) {
         const position = new Vector3(data.position.x, data.position.y, data.position.z);
-        const panel = new PanelObject(position, data.text, data.id);
+        const panel = new PanelObject(position, data.text, data.url || '', data.id);
         panel.group.userData.createdAt = data.createdAt;
         return panel;
     }

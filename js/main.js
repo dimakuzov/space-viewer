@@ -3,7 +3,9 @@ import {
     PerspectiveCamera,
     Scene,
     DirectionalLight,
-    AmbientLight
+    AmbientLight,
+    Raycaster,
+    Vector2
 } from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -23,6 +25,8 @@ class LumaSceneApp {
         this.placedObjects = [];
         this.panels = new Map(); // Store panel objects by their group
         this.collisionMesh = null;
+        this.raycaster = new Raycaster();
+        this.mouse = new Vector2();
 
         this.initRenderer();
         this.initScene();
@@ -80,6 +84,8 @@ class LumaSceneApp {
         this.saveLoadController = new SaveLoadController();
         this.uiController = new UIController(this);
 
+        this.saveLoadController.setApp(this);
+
         // Bind panel events
         this.bindPanelEvents();
     }
@@ -111,7 +117,7 @@ class LumaSceneApp {
     }
 
     createPanel(position, text = 'New Panel') {
-        const panel = new PanelObject(position, text);
+        const panel = new PanelObject(position, text, url);
         const group = panel.getGroup();
 
         this.scene.add(group);
@@ -220,7 +226,8 @@ class LumaSceneApp {
     }
     
     bindEvents() {
-        window.addEventListener('resize', () => {
+        window.addEventListener('click', (event) => {
+            this.onViewModeClick(event);
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -314,6 +321,80 @@ class LumaSceneApp {
             // Render scene
             this.renderer.render(this.scene, this.camera);
         });
+    }
+
+
+    onViewModeClick(event) {
+        // Don't handle clicks if in edit mode or if panel editor is active
+        if (this.isEditMode || (this.panelEditor && this.panelEditor.isEditing())) {
+            return;
+        }
+
+        // Check if click was on UI element
+        if (this.isClickOnUI(event)) {
+            return;
+        }
+
+        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+
+        // Get all panel meshes
+        const panelMeshes = [];
+        this.panels.forEach((panel, group) => {
+            group.traverse((child) => {
+                if (child.isMesh) {
+                    panelMeshes.push(child);
+                }
+            });
+        });
+
+        const intersects = this.raycaster.intersectObjects(panelMeshes);
+
+        if (intersects.length > 0) {
+            // Find the panel object that contains this mesh
+            const clickedMesh = intersects[0].object;
+            let panelGroup = clickedMesh.parent;
+
+            // Find the panel object in our panels map
+            const panel = this.panels.get(panelGroup);
+
+            if (panel && panel.hasUrl()) {
+                // Try to open the URL
+                const success = panel.openUrl();
+                if (success) {
+                    console.log(`Opened panel URL: ${panel.getUrl()}`);
+                } else {
+                    console.warn(`Failed to open panel URL: ${panel.getUrl()}`);
+                }
+            } else if (panel) {
+                console.log('Panel clicked but has no URL');
+            }
+        }
+    }
+
+    isClickOnUI(event) {
+        // Check if the click target or any of its parents is a UI element
+        let element = event.target;
+        while (element) {
+            // Check for common UI classes and elements
+            if (element.classList && (
+                element.classList.contains('ui-panel') ||
+                element.classList.contains('object-tools') ||
+                element.classList.contains('mode-toggle') ||
+                element.classList.contains('controls-info') ||
+                element.classList.contains('panel-edit-buttons') ||
+                element.classList.contains('panel-text-overlay') ||
+                element.tagName === 'BUTTON' ||
+                element.tagName === 'INPUT' ||
+                element.tagName === 'TEXTAREA'
+            )) {
+                return true;
+            }
+            element = element.parentElement;
+        }
+        return false;
     }
 }
 

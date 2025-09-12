@@ -2,7 +2,7 @@ export class SaveLoadController {
     constructor() {
         this.dataFilePath = 'assets/data.json';
         this.collisionMesh = null;
-        this.textPanelController = null;
+        this.app = null; // Reference to main app for panel data
     }
 
     setCollisionMesh(collisionMesh) {
@@ -13,9 +13,9 @@ export class SaveLoadController {
         this.loadTransform();
     }
 
-    setTextPanelController(textPanelController) {
-        this.textPanelController = textPanelController;
-        console.log('Text panel controller set for save/load system');
+    setApp(app) {
+        this.app = app;
+        console.log('App reference set for save/load system');
     }
 
     // Save current collider transform and text panels to JSON file
@@ -45,11 +45,11 @@ export class SaveLoadController {
                         z: this.collisionMesh.scale.z
                     }
                 },
-                // Text panels data
-                textPanels: this.textPanelController ? this.textPanelController.getPanelsData() : [],
+                // Text panels data (including URLs)
+                textPanels: this.app ? this.app.savePanelsData() : [],
                 // Metadata
                 savedAt: new Date().toISOString(),
-                version: "1.1" // Version for future compatibility
+                version: "1.2" // Updated version for URL support
             };
 
             // Create the JSON content
@@ -131,13 +131,14 @@ export class SaveLoadController {
                 }
             }
 
-            // Load text panels
-            if (data.textPanels && this.textPanelController) {
-                this.textPanelController.loadPanelsData(data.textPanels);
+            // Load text panels (including URLs)
+            if (data.textPanels && this.app) {
+                this.app.loadPanelsData(data.textPanels);
             }
 
             console.log('Data loaded successfully:', data);
             console.log(`Data saved at: ${data.savedAt || 'Unknown'}`);
+            console.log(`Data version: ${data.version || 'Legacy'}`);
             console.log(`Loaded ${data.textPanels ? data.textPanels.length : 0} text panels`);
             
             return true;
@@ -202,7 +203,7 @@ export class SaveLoadController {
                     z: this.collisionMesh.scale.z
                 }
             },
-            textPanels: this.textPanelController ? this.textPanelController.getPanelsData() : []
+            textPanels: this.app ? this.app.savePanelsData() : []
         };
     }
 
@@ -218,8 +219,9 @@ export class SaveLoadController {
         this.collisionMesh.scale.set(1, 1, 1);
 
         // Clear all text panels
-        if (this.textPanelController) {
-            this.textPanelController.clearAllPanels();
+        if (this.app) {
+            // Clear existing panels
+            this.app.getPanels().forEach(panel => this.app.deletePanel(panel));
         }
 
         console.log('Transform and text panels reset to default values');

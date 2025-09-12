@@ -24,6 +24,8 @@ export class PanelEditor {
         this.editButtons = null;
         this.textInput = null;
         this.originalText = '';
+        this.urlInput = null;
+        this.originalUrl = '';
 
         this.bindEvents();
     }
@@ -36,7 +38,9 @@ export class PanelEditor {
     onKeyDown(event) {
         if (!this.editMode || !this.selectedPanel) return;
 
-        if (this.textInput && document.activeElement === this.textInput) {
+
+        if ((this.textInput && document.activeElement === this.textInput) ||
+        (this.urlInput && document.activeElement === this.urlInput)) {
             return;
         }
 
@@ -306,6 +310,36 @@ export class PanelEditor {
 
         // Focus the text input
         setTimeout(() => this.textInput.focus(), 100);
+
+        // URL input section
+        const urlLabel = document.createElement('label');
+        urlLabel.textContent = 'Panel URL (optional, max 500 characters):';
+
+        this.urlInput = document.createElement('input');
+        this.urlInput.type = 'url';
+        this.urlInput.value = this.selectedPanel.getUrl();
+        this.urlInput.maxLength = 500;
+        this.urlInput.placeholder = 'https://example.com or example.com (optional)';
+
+        const urlCharCounter = document.createElement('div');
+        // ... character counter styling
+
+        const updateUrlCharCounter = () => {
+            const remaining = 500 - this.urlInput.value.length;
+            urlCharCounter.textContent = `${remaining} characters remaining`;
+            urlCharCounter.style.color = remaining < 50 ? '#f44336' : '#666';
+        };
+
+        // Real-time URL updates
+        this.urlInput.addEventListener('input', () => {
+            updateUrlCharCounter();
+            this.selectedPanel.setUrl(this.urlInput.value);
+        });
+
+        // Focus/blur styling
+        this.urlInput.addEventListener('focus', () => {
+            this.urlInput.style.borderColor = '#4CAF50';
+        });
     }
 
     updateMovement() {
@@ -375,6 +409,7 @@ export class PanelEditor {
 
         // Restore original text
         this.selectedPanel.setText(this.originalText);
+        this.selectedPanel.setUrl(this.originalUrl);
         console.log('Panel editing cancelled');
         this.endEdit();
     }
@@ -458,6 +493,8 @@ export class PanelEditor {
         this.positionEditMode = false;
         this.selectedPanel = null;
         this.originalText = '';
+        this.originalUrl = '';
+        this.urlInput = null;
 
         // Reset all keys
         Object.keys(this.keys).forEach(key => {
