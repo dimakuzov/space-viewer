@@ -254,16 +254,6 @@ export class PanelEditor {
             font-weight: 500;
         `;
 
-        const urlLabel = document.createElement('label');
-        urlLabel.textContent = 'Panel URL (optional, max 500 characters):';
-        urlLabel.style.cssText = `
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-            font-size: 14px;
-        `;
-
         this.urlInput = document.createElement('input');
         this.urlInput.type = 'url';
         this.urlInput.value = this.selectedPanel.getUrl();
@@ -355,7 +345,6 @@ export class PanelEditor {
         inputContainer.appendChild(label);
         inputContainer.appendChild(this.textInput);
         inputContainer.appendChild(charCounter);
-        inputContainer.appendChild(urlLabel);
         inputContainer.appendChild(this.urlInput);
         inputContainer.appendChild(urlCharCounter);
         inputContainer.appendChild(this.instructions);
