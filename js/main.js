@@ -116,13 +116,17 @@ class LumaSceneApp {
         });
     }
 
-    createPanel(position, text = 'New Panel') {
+    createPanel(position, text = 'New Panel', url = '') {
         const panel = new PanelObject(position, text, url);
         const group = panel.getGroup();
 
         this.scene.add(group);
         this.placedObjects.push(group);
         this.panels.set(group, panel);
+
+        document.addEventListener('panelCreate', (event) => {
+            this.createPanel(event.detail.position, 'New Panel', ''); // Add empty URL parameter
+        });
 
         console.log('Panel created at:', position);
         return panel;
@@ -278,6 +282,7 @@ class LumaSceneApp {
 
         // Load panels from data
         panelsData.forEach(data => {
+            // Use PanelObject.fromJSON instead of createPanel for loading
             const panel = PanelObject.fromJSON(data);
             const group = panel.getGroup();
 
