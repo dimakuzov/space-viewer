@@ -55,7 +55,7 @@ export class PanelObject {
 
         // Create geometry
         this.geometry = new PlaneGeometry(PANEL_WIDTH / 1000, PANEL_HEIGHT / 1000);
-        this.backgroundGeometry = new PlaneGeometry((PANEL_WIDTH - 7 * RESOLUTION_SCALE) / 1000, (PANEL_HEIGHT - 7 * RESOLUTION_SCALE) / 1000);
+        this.backgroundGeometry = new PlaneGeometry((PANEL_WIDTH - 6 * RESOLUTION_SCALE) / 1000, (PANEL_HEIGHT - 6 * RESOLUTION_SCALE) / 1000);
 
         this.panelWidth = PANEL_WIDTH;
         this.panelHeight = PANEL_HEIGHT;
