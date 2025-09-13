@@ -65,8 +65,8 @@ export class PanelObject {
         this.backgroundMaterial = new MeshPhysicalMaterial({
             map: this.backgroundTexture,
             transmission: 0.95,
-            roughness: 0.05,
-            thickness: 0.005,
+            roughness: 0.45,
+//            thickness: 0.005,
             transparent: true,
             opacity: 0.15,
             alphaTest: 0.0001,
@@ -123,7 +123,7 @@ export class PanelObject {
         this.textCtx.clearRect(0, 0, w, h);
 
         // Draw background (transparent)
-        this.drawRoundedRect(this.backgroundCtx, 0, 0, w, h, borderRadius * 1.3, 'rgba(0, 0, 30, 0.8)');
+        this.drawRoundedRect(this.backgroundCtx, 0, 0, w, h, (borderRadius + 5), 'rgba(0, 0, 30, 0.8)');
 
         // Choose border color based on whether panel has URL
         const borderColor = this.url ? 'rgba(90, 100, 239, 1.0)' : 'rgba(255, 255, 255, 1.0)';
@@ -135,7 +135,7 @@ export class PanelObject {
 
         // Draw text (opaque white)
         this.textCtx.fillStyle = 'rgba(255, 255, 255, 1.0)';
-        this.textCtx.font = `${35 * scale}px Montserrat, Arial, sans-serif`;
+        this.textCtx.font = `bold ${35 * scale}px Montserrat, Arial, sans-serif`;
         this.textCtx.textAlign = 'center';
         this.textCtx.textBaseline = 'middle';
 
