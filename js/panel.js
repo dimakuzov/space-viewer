@@ -125,7 +125,7 @@ export class PanelObject {
         this.textCtx.clearRect(0, 0, w, h);
 
         // Draw background as simple rectangle (smaller by borderWidth)
-        this.backgroundCtx.fillRect(borderWidth, borderWidth, w - (borderWidth * 2), h - (borderWidth * 2));
+        this.backgroundCtx.fillRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
 
         // Choose border color based on whether panel has URL
         const borderColor = this.url ? 'rgba(90, 100, 239, 1.0)' : 'rgba(255, 255, 255, 1.0)';
