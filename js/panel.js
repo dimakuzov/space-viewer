@@ -124,7 +124,7 @@ export class PanelObject {
         this.textCtx.clearRect(0, 0, w, h);
 
         // Draw background (transparent)
-        this.drawRoundedRect(this.backgroundCtx, 0, 0, w, h, (borderRadius + 5));
+        this.drawRoundedRect(this.backgroundCtx, 0, 0, w, h, borderRadius + 5);
 
         // Choose border color based on whether panel has URL
         const borderColor = this.url ? 'rgba(90, 100, 239, 1.0)' : 'rgba(255, 255, 255, 1.0)';
@@ -187,7 +187,7 @@ export class PanelObject {
     }
 
     // Helper function to draw rounded rectangle
-    drawRoundedRect(ctx, x, y, width, height, radius, fillStyle) {
+    drawRoundedRect(ctx, x, y, width, height, radius) {
         ctx.beginPath();
         ctx.moveTo(x + radius, y);
         ctx.lineTo(x + width - radius, y);
@@ -199,8 +199,6 @@ export class PanelObject {
         ctx.lineTo(x, y + radius);
         ctx.quadraticCurveTo(x, y, x + radius, y);
         ctx.closePath();
-
-        ctx.fillStyle = fillStyle;
         ctx.fill();
     }
 
