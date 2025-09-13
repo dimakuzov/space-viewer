@@ -202,6 +202,44 @@ canvas {
     cursor: not-allowed;
 }
 
+/* Save notification styles */
+.save-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(76, 175, 80, 0.95);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 350px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    animation: slideInRight 0.3s ease-out;
+}
+
+.save-notification:hover {
+    background: rgba(76, 175, 80, 1);
+    transform: translateX(-5px);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
 /* Additional responsive styles for panel editing */
 @media (max-width: 600px) {
     .panel-text-overlay > div {
@@ -218,6 +256,12 @@ canvas {
     .panel-edit-buttons button {
         width: 100% !important;
         min-width: auto !important;
+    }
+
+    .save-notification {
+        right: 10px;
+        left: 10px;
+        max-width: none;
     }
 }
 

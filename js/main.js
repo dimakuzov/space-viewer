@@ -114,6 +114,15 @@ class LumaSceneApp {
         document.addEventListener('objectDelete', (event) => {
             this.deleteObject(event.detail.object);
         });
+
+        // NEW: Listen for panel save and download events
+        document.addEventListener('panelSaveAndDownload', (event) => {
+            console.log('Panel saved, triggering data.json download...');
+            this.saveColliderTransform();
+
+            // Provide user feedback
+            this.showSaveNotification('Panel saved! Data.json downloaded. Place it in the assets/ folder.');
+        });
     }
 
     createPanel(position, text = 'New Panel', url = '') {
@@ -396,6 +405,47 @@ class LumaSceneApp {
             element = element.parentElement;
         }
         return false;
+    }
+
+    // NEW: Show save notification to user
+    showSaveNotification(message) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(76, 175, 80, 0.95);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-family: 'Montserrat', Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 10000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            max-width: 350px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        `;
+        notification.textContent = message;
+
+        // Add to DOM
+        document.body.appendChild(notification);
+
+        // Remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+
+        // Add click to dismiss
+        notification.addEventListener('click', () => {
+            notification.remove();
+        });
+
+        notification.style.cursor = 'pointer';
     }
 }
 

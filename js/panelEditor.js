@@ -119,6 +119,7 @@ export class PanelEditor {
         this.selectedPanel = panel;
         this.editMode = true;
         this.originalText = panel.getText();
+        this.originalUrl = panel.getUrl(); // Store original URL
 
         console.log('Started editing panel:', panel.id);
 
@@ -148,7 +149,7 @@ export class PanelEditor {
 
         // Create buttons
         const cancelBtn = this.createButton('Cancel', '#f44336', () => this.cancelEdit());
-        const saveBtn = this.createButton('Save', '#4CAF50', () => this.saveEdit());
+        const saveBtn = this.createButton('Save & Download', '#4CAF50', () => this.saveEdit());
         const deleteBtn = this.createButton('Delete', '#ff9800', () => this.deletePanel());
         const editPositionBtn = this.createButton('Edit Position', '#2196F3', () => this.togglePositionEdit());
 
@@ -254,6 +255,17 @@ export class PanelEditor {
             font-weight: 500;
         `;
 
+        // Add URL label
+        const urlLabel = document.createElement('label');
+        urlLabel.textContent = 'URL (optional):';
+        urlLabel.style.cssText = `
+            display: block;
+            margin: 16px 0 8px 0;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        `;
+
         this.urlInput = document.createElement('input');
         this.urlInput.type = 'url';
         this.urlInput.value = this.selectedPanel.getUrl();
@@ -321,13 +333,15 @@ export class PanelEditor {
         `;
         this.instructions.innerHTML = `
             <strong>Controls:</strong><br>
-            WASD - Move panel horizontally, R/F - Move panel up/down, Escape - Cancel editing
+            WASD - Move panel horizontally, R/F - Move panel up/down<br>
+            <strong>Note:</strong> Clicking "Save & Download" will download a data.json file that you should place in the assets/ folder.
         `;
         this.updateInstructions(false);
 
         inputContainer.appendChild(label);
         inputContainer.appendChild(this.textInput);
         inputContainer.appendChild(charCounter);
+        inputContainer.appendChild(urlLabel);
         inputContainer.appendChild(this.urlInput);
         inputContainer.appendChild(this.instructions);
         overlay.appendChild(inputContainer);
@@ -406,13 +420,23 @@ export class PanelEditor {
         if (!this.selectedPanel) return;
 
         console.log('Panel changes saved');
+
+        // Dispatch event to trigger main save system
+        const event = new CustomEvent('panelSaveAndDownload', {
+            detail: {
+                panel: this.selectedPanel,
+                message: 'Panel saved and data.json will be downloaded'
+            }
+        });
+        document.dispatchEvent(event);
+
         this.endEdit();
     }
 
     cancelEdit() {
         if (!this.selectedPanel) return;
 
-        // Restore original text
+        // Restore original text and URL
         this.selectedPanel.setText(this.originalText);
         this.selectedPanel.setUrl(this.originalUrl);
         console.log('Panel editing cancelled');
@@ -463,7 +487,8 @@ export class PanelEditor {
         if (positionEditMode) {
             this.instructions.innerHTML = `
                 <strong style="color: #FF9800;">Position Edit Mode Active:</strong><br>
-                WASD - Move panel horizontally, R/F - Move panel up/down, Escape - Cancel editing
+                WASD - Move panel horizontally, R/F - Move panel up/down<br>
+                <strong>Note:</strong> Clicking "Save & Download" will download a data.json file that you should place in the assets/ folder.
             `;
             this.instructions.style.background = '#fff3cd';
             this.instructions.style.border = '1px solid #ffc107';
@@ -475,10 +500,18 @@ export class PanelEditor {
                 this.textInput.style.color = '#666';
                 this.textInput.style.cursor = 'not-allowed';
             }
+
+            if (this.urlInput) {
+                this.urlInput.disabled = true;
+                this.urlInput.style.background = '#f5f5f5';
+                this.urlInput.style.color = '#666';
+                this.urlInput.style.cursor = 'not-allowed';
+            }
         } else {
             this.instructions.innerHTML = `
                 <strong style="color: #4CAF50;">Text Edit Mode:</strong><br>
-                Write a description and edit the position (press Edit Postion button)
+                Write a description and edit the position (press Edit Position button)<br>
+                <strong>Note:</strong> Clicking "Save & Download" will download a data.json file that you should place in the assets/ folder.
             `;
             this.instructions.style.background = 'rgba(0, 0, 0, 0.05)';
             this.instructions.style.border = 'none';
@@ -489,6 +522,13 @@ export class PanelEditor {
                 this.textInput.style.background = '';
                 this.textInput.style.color = '';
                 this.textInput.style.cursor = '';
+            }
+
+            if (this.urlInput) {
+                this.urlInput.disabled = false;
+                this.urlInput.style.background = '';
+                this.urlInput.style.color = '';
+                this.urlInput.style.cursor = '';
             }
         }
     }
