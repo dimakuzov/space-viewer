@@ -67,12 +67,12 @@ export class PanelObject {
             transmission: 0.95,
             roughness: 0.45,
 //            thickness: 0.005,
-            transparent: true,
-            opacity: 0.15,
-            alphaTest: 0.0001,
-            side: 2, // DoubleSide
-            ior: 1.5,
-            reflectivity: 0.05
+//            transparent: true,
+//            opacity: 0.15,
+//            alphaTest: 0.0001,
+//            side: 2, // DoubleSide
+//            ior: 1.5,
+//            reflectivity: 0.05
         });
 
         // Border material (opaque)
