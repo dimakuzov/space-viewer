@@ -55,7 +55,7 @@ export class PanelObject {
 
         // Create geometry
         this.geometry = new PlaneGeometry(PANEL_WIDTH / 1000, PANEL_HEIGHT / 1000);
-        this.backgroundGeometry = new PlaneGeometry((PANEL_WIDTH - 7 * RESOLUTION_SCALE * 2) / 1000, (PANEL_HEIGHT - 7 * RESOLUTION_SCALE * 2) / 1000);
+        this.backgroundGeometry = new PlaneGeometry((PANEL_WIDTH - 7 * RESOLUTION_SCALE) / 1000, (PANEL_HEIGHT - 7 * RESOLUTION_SCALE) / 1000);
 
         this.panelWidth = PANEL_WIDTH;
         this.panelHeight = PANEL_HEIGHT;
@@ -138,7 +138,7 @@ export class PanelObject {
 
         // Rest of the text drawing code stays the same...
         this.textCtx.fillStyle = 'rgba(255, 255, 255, 1.0)';
-        this.textCtx.font = `bold ${32 * scale}px Montserrat, Arial, sans-serif`;
+        this.textCtx.font = `bold ${28 * scale}px Montserrat, Arial, sans-serif`;
         this.textCtx.textAlign = 'center';
         this.textCtx.textBaseline = 'middle';
 
@@ -177,7 +177,7 @@ export class PanelObject {
 
         // Add URL indicator if URL exists
         if (this.url) {
-            this.textCtx.font = `bold ${14 * scale}px Montserrat, Arial, sans-serif`;
+            this.textCtx.font = `bold ${11 * scale}px Montserrat, Arial, sans-serif`;
             this.textCtx.fillStyle = 'rgba(0, 255, 0, 1.0)';
             this.textCtx.fillText('🔗 Click to open link', w / 2, h - (20 * scale));
         }
