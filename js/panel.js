@@ -28,7 +28,7 @@ export class PanelObject {
     }
 
     createPanel() {
-        const PANEL_WIDTH = 350;
+        const PANEL_WIDTH = 320;
         const PANEL_HEIGHT = 160;
         const RESOLUTION_SCALE = 2;
 
