@@ -187,7 +187,8 @@ class LumaSceneApp {
         try {
             console.log('Loading Luma splat scene...');
             this.splat = new LumaSplatsThree({
-                source: 'https://lumalabs.ai/capture/20961f1d-3add-4382-a0f0-c0a6a53a5b45'
+                source: 'https://lumalabs.ai/capture/11293a16-dc18-453d-bb03-1924a96a0a37' // room 5
+//                source: 'https://lumalabs.ai/capture/20961f1d-3add-4382-a0f0-c0a6a53a5b45' // two rooms
             });
             this.scene.add(this.splat);
             console.log('Luma splat scene loaded successfully');
