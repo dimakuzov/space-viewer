@@ -124,10 +124,6 @@ class LumaSceneApp {
         this.placedObjects.push(group);
         this.panels.set(group, panel);
 
-        document.addEventListener('panelCreate', (event) => {
-            this.createPanel(event.detail.position, 'New Panel', ''); // Add empty URL parameter
-        });
-
         console.log('Panel created at:', position);
         return panel;
     }
