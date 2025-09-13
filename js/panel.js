@@ -29,7 +29,7 @@ export class PanelObject {
 
     createPanel() {
         const PANEL_WIDTH = 350;
-        const PANEL_HEIGHT = 190;
+        const PANEL_HEIGHT = 160;
         const RESOLUTION_SCALE = 2;
 
         const canvasWidth = PANEL_WIDTH * RESOLUTION_SCALE;
