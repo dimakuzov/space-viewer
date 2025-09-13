@@ -55,6 +55,7 @@ export class PanelObject {
 
         // Create geometry
         this.geometry = new PlaneGeometry(PANEL_WIDTH / 1000, PANEL_HEIGHT / 1000);
+        this.backgroundGeometry = new PlaneGeometry((PANEL_WIDTH - 7 * RESOLUTION_SCALE * 2) / 1000, (PANEL_HEIGHT - 7 * RESOLUTION_SCALE * 2) / 1000);
 
         this.panelWidth = PANEL_WIDTH;
         this.panelHeight = PANEL_HEIGHT;
@@ -93,7 +94,7 @@ export class PanelObject {
         });
 
         // Create meshes
-        this.backgroundMesh = new Mesh(((PANEL_WIDTH - 7 * RESOLUTION_SCALE * 2) / 1000, (PANEL_HEIGHT - 7 * RESOLUTION_SCALE * 2) / 1000), this.backgroundMaterial);
+        this.backgroundMesh = new Mesh(this.backgroundGeometry, this.backgroundMaterial);
         this.borderMesh = new Mesh(this.geometry, this.borderMaterial);
         this.textMesh = new Mesh(this.geometry, this.textMaterial);
 
