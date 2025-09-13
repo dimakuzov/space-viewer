@@ -93,7 +93,7 @@ export class PanelObject {
         });
 
         // Create meshes
-        this.backgroundMesh = new Mesh(this.geometry, this.backgroundMaterial);
+        this.backgroundMesh = new Mesh(((PANEL_WIDTH - 7 * RESOLUTION_SCALE * 2) / 1000, (PANEL_HEIGHT - 7 * RESOLUTION_SCALE * 2) / 1000), this.backgroundMaterial);
         this.borderMesh = new Mesh(this.geometry, this.borderMaterial);
         this.textMesh = new Mesh(this.geometry, this.textMaterial);
 
