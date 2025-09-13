@@ -278,12 +278,14 @@ class LumaSceneApp {
 
     savePanelsData() {
         const panelsData = this.getPanels().map(panel => panel.toJSON());
+        console.log(`Saving ${panelsData.length} panels:`, panelsData.map(p => ({id: p.id, text: p.text.substring(0, 20) + '...'})));
         return panelsData;
     }
 
     loadPanelsData(panelsData) {
-        // Clear existing panels
-        this.panels.forEach(panel => this.deletePanel(panel));
+        // Clear existing panels properly
+        const existingPanels = Array.from(this.panels.values()); // Create array copy first
+        existingPanels.forEach(panel => this.deletePanel(panel));
 
         // Load panels from data
         panelsData.forEach(data => {
@@ -295,6 +297,8 @@ class LumaSceneApp {
             this.placedObjects.push(group);
             this.panels.set(group, panel);
         });
+
+        console.log(`Loaded ${panelsData.length} panels from data`);
     }
 
     saveColliderTransform() {
@@ -446,6 +450,17 @@ class LumaSceneApp {
         });
 
         notification.style.cursor = 'pointer';
+    }
+
+    debugPanelCount() {
+        console.log(`Panels in memory: ${this.panels.size}`);
+        console.log(`Placed objects: ${this.placedObjects.length}`);
+        console.log('Panel IDs:', Array.from(this.panels.values()).map(p => p.id));
+        return {
+            panelsCount: this.panels.size,
+            placedObjectsCount: this.placedObjects.length,
+            panelIds: Array.from(this.panels.values()).map(p => p.id)
+        };
     }
 }
 
