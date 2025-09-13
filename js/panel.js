@@ -111,30 +111,32 @@ export class PanelObject {
     }
 
     updateTexture() {
+        // Use stored values
         const w = this.panelWidth * this.resolutionScale;
         const h = this.panelHeight * this.resolutionScale;
         const scale = this.resolutionScale;
 
-        const borderRadius = 18 * scale;
-        const borderWidth = 9 * scale;
+        const borderRadius = 15 * scale;
+        const borderWidth = 7 * scale;
 
         // Clear all canvases
         this.backgroundCtx.clearRect(0, 0, w, h);
         this.borderCtx.clearRect(0, 0, w, h);
         this.textCtx.clearRect(0, 0, w, h);
 
-        // Draw background (transparent)
-        this.drawRoundedRect(this.backgroundCtx, 0, 0, w, h, borderRadius + 5);
+        // Draw background as simple rectangle (smaller by borderWidth)
+        this.backgroundCtx.fillStyle = 'rgba(0, 0, 30, 0.8)';
+        this.backgroundCtx.fillRect(borderWidth, borderWidth, w - (borderWidth * 2), h - (borderWidth * 2));
 
         // Choose border color based on whether panel has URL
-        const borderColor = this.url ? 'rgba(90, 100, 239, 1.0)' : 'rgba(255, 255, 255, 1.0)';
+        const borderColor = this.url ? 'rgba(0, 255, 0, 1.0)' : 'rgba(255, 255, 255, 1.0)';
 
-        // Draw border (green if has URL, white if no URL)
+        // Draw border (keep rounded)
         this.drawRoundedRectBorder(this.borderCtx, borderWidth/2, borderWidth/2,
             w - borderWidth, h - borderWidth,
             borderRadius - borderWidth/2, borderColor, borderWidth);
 
-        // Draw text (opaque white)
+        // Rest of the text drawing code stays the same...
         this.textCtx.fillStyle = 'rgba(255, 255, 255, 1.0)';
         this.textCtx.font = `bold ${35 * scale}px Montserrat, Arial, sans-serif`;
         this.textCtx.textAlign = 'center';
@@ -175,7 +177,7 @@ export class PanelObject {
 
         // Add URL indicator if URL exists
         if (this.url) {
-            this.textCtx.font = `${16 * scale}px Montserrat, Arial, sans-serif`;
+            this.textCtx.font = `bold ${16 * scale}px Montserrat, Arial, sans-serif`;
             this.textCtx.fillStyle = 'rgba(0, 255, 0, 1.0)';
             this.textCtx.fillText('🔗 Click to open link', w / 2, h - (20 * scale));
         }
@@ -184,22 +186,6 @@ export class PanelObject {
         this.backgroundTexture.needsUpdate = true;
         this.borderTexture.needsUpdate = true;
         this.textTexture.needsUpdate = true;
-    }
-
-    // Helper function to draw rounded rectangle
-    drawRoundedRect(ctx, x, y, width, height, radius) {
-        ctx.beginPath();
-        ctx.moveTo(x + radius, y);
-        ctx.lineTo(x + width - radius, y);
-        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-        ctx.lineTo(x + width, y + height - radius);
-        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        ctx.lineTo(x + radius, y + height);
-        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-        ctx.lineTo(x, y + radius);
-        ctx.quadraticCurveTo(x, y, x + radius, y);
-        ctx.closePath();
-        ctx.fill();
     }
 
     // Helper function to draw rounded rectangle border
