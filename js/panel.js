@@ -138,7 +138,7 @@ export class PanelObject {
 
         // Rest of the text drawing code stays the same...
         this.textCtx.fillStyle = 'rgba(255, 255, 255, 1.0)';
-        this.textCtx.font = `bold ${35 * scale}px Montserrat, Arial, sans-serif`;
+        this.textCtx.font = `bold ${32 * scale}px Montserrat, Arial, sans-serif`;
         this.textCtx.textAlign = 'center';
         this.textCtx.textBaseline = 'middle';
 
@@ -177,7 +177,7 @@ export class PanelObject {
 
         // Add URL indicator if URL exists
         if (this.url) {
-            this.textCtx.font = `bold ${16 * scale}px Montserrat, Arial, sans-serif`;
+            this.textCtx.font = `bold ${14 * scale}px Montserrat, Arial, sans-serif`;
             this.textCtx.fillStyle = 'rgba(0, 255, 0, 1.0)';
             this.textCtx.fillText('🔗 Click to open link', w / 2, h - (20 * scale));
         }
