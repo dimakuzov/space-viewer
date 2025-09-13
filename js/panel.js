@@ -37,8 +37,8 @@ export class PanelObject {
 
         // Create canvas for background only (transparent)
         this.backgroundCanvas = document.createElement('canvas');
-        this.backgroundCanvas.width = canvasWidth;
-        this.backgroundCanvas.height = canvasHeight;
+        this.backgroundCanvas.width = canvasWidth - (7 * RESOLUTION_SCALE * 2);
+        this.backgroundCanvas.height = canvasHeight - (7 * RESOLUTION_SCALE * 2);
         this.backgroundCtx = this.backgroundCanvas.getContext('2d');
 
         // Create canvas for border (opaque)
@@ -49,8 +49,8 @@ export class PanelObject {
 
         // Create canvas for text (opaque)
         this.textCanvas = document.createElement('canvas');
-        this.textCanvas.width = canvasWidth;
-        this.textCanvas.height = canvasHeight;
+        this.textCanvas.width = canvasWidth - (7 * RESOLUTION_SCALE * 2);
+        this.textCanvas.height = canvasHeight - (7 * RESOLUTION_SCALE * 2);
         this.textCtx = this.textCanvas.getContext('2d');
 
         // Create geometry
@@ -125,11 +125,10 @@ export class PanelObject {
         this.textCtx.clearRect(0, 0, w, h);
 
         // Draw background as simple rectangle (smaller by borderWidth)
-        this.backgroundCtx.fillStyle = 'rgba(0, 0, 30, 0.8)';
         this.backgroundCtx.fillRect(borderWidth, borderWidth, w - (borderWidth * 2), h - (borderWidth * 2));
 
         // Choose border color based on whether panel has URL
-        const borderColor = this.url ? 'rgba(0, 255, 0, 1.0)' : 'rgba(255, 255, 255, 1.0)';
+        const borderColor = this.url ? 'rgba(90, 100, 239, 1.0)' : 'rgba(255, 255, 255, 1.0)';
 
         // Draw border (keep rounded)
         this.drawRoundedRectBorder(this.borderCtx, borderWidth/2, borderWidth/2,
