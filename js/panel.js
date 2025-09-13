@@ -28,26 +28,37 @@ export class PanelObject {
     }
 
     createPanel() {
+        const PANEL_WIDTH = 350;
+        const PANEL_HEIGHT = 190;
+        const RESOLUTION_SCALE = 2;
+
+        const canvasWidth = PANEL_WIDTH * RESOLUTION_SCALE;
+        const canvasHeight = PANEL_HEIGHT * RESOLUTION_SCALE;
+
         // Create canvas for background only (transparent)
         this.backgroundCanvas = document.createElement('canvas');
-        this.backgroundCanvas.width = 350;
-        this.backgroundCanvas.height = 190;
+        this.backgroundCanvas.width = canvasWidth;
+        this.backgroundCanvas.height = canvasHeight;
         this.backgroundCtx = this.backgroundCanvas.getContext('2d');
 
         // Create canvas for border (opaque)
         this.borderCanvas = document.createElement('canvas');
-        this.borderCanvas.width = 350;
-        this.borderCanvas.height = 190;
+        this.borderCanvas.width = canvasWidth;
+        this.borderCanvas.height = canvasHeight;
         this.borderCtx = this.borderCanvas.getContext('2d');
 
         // Create canvas for text (opaque)
         this.textCanvas = document.createElement('canvas');
-        this.textCanvas.width = 350;
-        this.textCanvas.height = 190;
+        this.textCanvas.width = canvasWidth;
+        this.textCanvas.height = canvasHeight;
         this.textCtx = this.textCanvas.getContext('2d');
 
         // Create geometry
-        this.geometry = new PlaneGeometry(0.35, 0.19);
+        this.geometry = new PlaneGeometry(PANEL_WIDTH / 1000, PANEL_HEIGHT / 1000);
+
+        this.panelWidth = PANEL_WIDTH;
+        this.panelHeight = PANEL_HEIGHT;
+        this.resolutionScale = RESOLUTION_SCALE;
 
         // Background material (transparent with blur)
         this.backgroundTexture = new CanvasTexture(this.backgroundCanvas);
@@ -99,28 +110,32 @@ export class PanelObject {
     }
 
     updateTexture() {
-        const borderRadius = 15;
-        const borderWidth = 7;
+        const w = this.panelWidth * this.resolutionScale;
+        const h = this.panelHeight * this.resolutionScale;
+        const scale = this.resolutionScale;
+
+        const borderRadius = 18 * scale;
+        const borderWidth = 9 * scale;
 
         // Clear all canvases
-        this.backgroundCtx.clearRect(0, 0, 350, 190);
-        this.borderCtx.clearRect(0, 0, 350, 190);
-        this.textCtx.clearRect(0, 0, 350, 190);
+        this.backgroundCtx.clearRect(0, 0, w, h);
+        this.borderCtx.clearRect(0, 0, w, h);
+        this.textCtx.clearRect(0, 0, w, h);
 
         // Draw background (transparent)
-        this.drawRoundedRect(this.backgroundCtx, 0, 0, 350, 190, borderRadius, 'rgba(0, 0, 30, 0.8)');
+        this.drawRoundedRect(this.backgroundCtx, 0, 0, w, h, borderRadius * 1.3, 'rgba(0, 0, 30, 0.8)');
 
         // Choose border color based on whether panel has URL
         const borderColor = this.url ? 'rgba(90, 100, 239, 1.0)' : 'rgba(255, 255, 255, 1.0)';
 
         // Draw border (green if has URL, white if no URL)
         this.drawRoundedRectBorder(this.borderCtx, borderWidth/2, borderWidth/2,
-            350 - borderWidth, 190 - borderWidth,
+            w - borderWidth, h - borderWidth,
             borderRadius - borderWidth/2, borderColor, borderWidth);
 
         // Draw text (opaque white)
         this.textCtx.fillStyle = 'rgba(255, 255, 255, 1.0)';
-        this.textCtx.font = '35px Montserrat, Arial, sans-serif';
+        this.textCtx.font = `${35 * scale}px Montserrat, Arial, sans-serif`;
         this.textCtx.textAlign = 'center';
         this.textCtx.textBaseline = 'middle';
 
@@ -128,7 +143,7 @@ export class PanelObject {
         const words = this.text.split(' ');
         const lines = [];
         let currentLine = '';
-        const maxWidth = 350 - 40;
+        const maxWidth = w - (40 * scale);
 
         for (let word of words) {
             const testLine = currentLine + (currentLine ? ' ' : '') + word;
@@ -145,23 +160,23 @@ export class PanelObject {
             lines.push(currentLine);
         }
 
-        const lineHeight = 40;
-        let startY = (190 - (lines.length - 1) * lineHeight) / 2;
+        const lineHeight = 40 * scale;
+        let startY = (h - (lines.length - 1) * lineHeight) / 2;
 
         // If there's a URL, adjust text position to make room for URL indicator
         if (this.url) {
-            startY -= 10; // Move text up slightly
+            startY -= 10 * scale; // Move text up slightly
         }
 
         lines.forEach((line, index) => {
-            this.textCtx.fillText(line, 350 / 2, startY + index * lineHeight);
+            this.textCtx.fillText(line, w / 2, startY + index * lineHeight);
         });
 
         // Add URL indicator if URL exists
         if (this.url) {
-            this.textCtx.font = '16px Montserrat, Arial, sans-serif';
+            this.textCtx.font = `${16 * scale}px Montserrat, Arial, sans-serif`;
             this.textCtx.fillStyle = 'rgba(0, 255, 0, 1.0)';
-            this.textCtx.fillText('🔗 Click to open link', 350 / 2, 170);
+            this.textCtx.fillText('🔗 Click to open link', w / 2, h - (20 * scale));
         }
 
         // Update all textures
