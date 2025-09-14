@@ -32,6 +32,8 @@ export class UIController {
 
         // Crosshair
         this.crosshair = document.getElementById('crosshair');
+
+        this.clickInstruction = document.getElementById('clickInstruction');
     }
 
     bindEvents() {
@@ -78,6 +80,14 @@ export class UIController {
         this.viewControls.style.display = 'block';
         this.editControls.style.display = 'none';
 
+        // Show click instruction if pointer lock is not active
+        if (!this.app.pointerLockControls.isLocked) {
+            this.clickInstruction.style.display = 'block';
+        }
+
+        // Clear tool selection
+        this.clearObjectToolSelection();
+
         // Disable collider edit mode
         this.app.editorController.setColliderEditMode(false);
         this.updateEditColliderButton();
@@ -93,6 +103,9 @@ export class UIController {
         this.viewModeBtn.classList.remove('active');
         this.objectTools.style.display = 'block';
         this.crosshair.style.display = 'block';
+
+        // Hide click instruction in edit mode
+        this.clickInstruction.style.display = 'none';
 
         // Show edit controls, hide view controls
         this.viewControls.style.display = 'none';

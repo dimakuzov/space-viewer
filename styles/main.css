@@ -232,6 +232,37 @@ canvas {
     transform: translateX(-5px);
 }
 
+.click-instruction {
+    position: fixed;
+    bottom: 80px; /* Higher position */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+    text-align: center;
+    color: white;
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-weight: bold;
+    font-size: 36px; /* Bigger text */
+    pointer-events: none;
+}
+
+.click-instruction-content h3 {
+    margin: 0;
+    font-size: 36px; /* Bigger text */
+    color: white;
+    font-weight: bold;
+}
+
+.click-instruction-content p {
+    display: none; /* Hide the description */
+}
+
+@media (max-width: 768px) {
+    .click-instruction {
+        display: none;
+    }
+}
+
 @keyframes slideInRight {
     from {
         transform: translateX(100%);

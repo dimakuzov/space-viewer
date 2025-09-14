@@ -36,6 +36,12 @@ export class MovementController {
         document.addEventListener('click', (event) => {
             if (this.enabled && event.target.tagName === 'CANVAS') {
                 this.controls.lock();
+
+                // Hide the click instruction when pointer lock activates
+                const clickInstruction = document.getElementById('clickInstruction');
+                if (clickInstruction) {
+                    clickInstruction.style.display = 'none';
+                }
             }
         });
     }
