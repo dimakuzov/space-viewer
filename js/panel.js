@@ -138,7 +138,7 @@ export class PanelObject {
 
         // Rest of the text drawing code stays the same...
         this.textCtx.fillStyle = 'rgba(255, 255, 255, 1.0)';
-        this.textCtx.font = `bold ${56 * scale}px Montserrat, Arial, sans-serif`;
+        this.textCtx.font = `bold ${50 * scale}px Montserrat, Arial, sans-serif`;
         this.textCtx.textAlign = 'center';
         this.textCtx.textBaseline = 'middle';
 

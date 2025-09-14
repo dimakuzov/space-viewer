@@ -33,9 +33,9 @@
       "text": "Capboard (500$)",
       "url": "https://www.google.com/search?q=capboaed&oq=capboaed&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIJCAEQABgNGIAEMgkIAhAAGA0YgAQyCQgDEAAYDRiABDIJCAQQABgNGIAEMgkIBRAuGA0YgAQyCQgGEAAYDRiABDIJCAcQABgNGIAEMgkICBAAGA0YgAQyCQgJEAAYDRiABNIBCDMzMDNqMGo5qAIAsAIA&sourceid=chrome&ie=UTF-8",
       "position": {
-        "x": 2.785065242939369,
+        "x": 3.5415790940660954,
         "y": 0.4700866272433156,
-        "z": -0.14504321007508064
+        "z": 0.4459616909650065
       },
       "createdAt": "2025-09-13T12:59:01.445Z"
     },
@@ -71,8 +71,30 @@
         "z": -2.6404723278313655
       },
       "createdAt": "2025-09-14T11:36:20.481Z"
+    },
+    {
+      "id": 1757850828946,
+      "text": "🛋️ - 500$",
+      "url": "",
+      "position": {
+        "x": 1.4863640050143911,
+        "y": -0.7906107208351646,
+        "z": -2.689637628405667
+      },
+      "createdAt": "2025-09-14T11:53:48.946Z"
+    },
+    {
+      "id": 1757851008571,
+      "text": "New Panel",
+      "url": "",
+      "position": {
+        "x": -0.3666769188695047,
+        "y": 0.5788530683618939,
+        "z": 0.29813438254695296
+      },
+      "createdAt": "2025-09-14T11:56:48.571Z"
     }
   ],
-  "savedAt": "2025-09-14T11:45:10.527Z",
+  "savedAt": "2025-09-14T11:57:12.957Z",
   "version": "1.2"
 }
