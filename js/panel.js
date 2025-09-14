@@ -28,8 +28,8 @@ export class PanelObject {
     }
 
     createPanel() {
-        const PANEL_WIDTH = 320;
-        const PANEL_HEIGHT = 160;
+        const PANEL_WIDTH = 480; // 320
+        const PANEL_HEIGHT = 320; // 160
         const RESOLUTION_SCALE = 2;
 
         const canvasWidth = PANEL_WIDTH * RESOLUTION_SCALE;
@@ -37,8 +37,8 @@ export class PanelObject {
 
         // Create canvas for background only (transparent)
         this.backgroundCanvas = document.createElement('canvas');
-        this.backgroundCanvas.width = canvasWidth - (7 * RESOLUTION_SCALE * 2);
-        this.backgroundCanvas.height = canvasHeight - (7 * RESOLUTION_SCALE * 2);
+        this.backgroundCanvas.width = canvasWidth - (10 * RESOLUTION_SCALE * 2);
+        this.backgroundCanvas.height = canvasHeight - (10 * RESOLUTION_SCALE * 2);
         this.backgroundCtx = this.backgroundCanvas.getContext('2d');
 
         // Create canvas for border (opaque)
@@ -49,8 +49,8 @@ export class PanelObject {
 
         // Create canvas for text (opaque)
         this.textCanvas = document.createElement('canvas');
-        this.textCanvas.width = canvasWidth - (7 * RESOLUTION_SCALE * 2);
-        this.textCanvas.height = canvasHeight - (7 * RESOLUTION_SCALE * 2);
+        this.textCanvas.width = canvasWidth - (10 * RESOLUTION_SCALE * 2);
+        this.textCanvas.height = canvasHeight - (10 * RESOLUTION_SCALE * 2);
         this.textCtx = this.textCanvas.getContext('2d');
 
         // Create geometry
@@ -96,12 +96,12 @@ export class PanelObject {
         // Create meshes
         this.backgroundMesh = new Mesh(this.backgroundGeometry, this.backgroundMaterial);
         this.borderMesh = new Mesh(this.geometry, this.borderMaterial);
-        this.textMesh = new Mesh(this.geometry, this.textMaterial);
+        this.textMesh = new Mesh(this.backgroundGeometry, this.textMaterial);
 
         // Position them slightly apart to avoid z-fighting
         this.backgroundMesh.position.z = 0;
         this.borderMesh.position.z = 0.001;
-        this.textMesh.position.z = 0.002;
+        this.textMesh.position.z = 0.001;
 
         // Add all meshes to group
         this.group.add(this.backgroundMesh);
@@ -117,8 +117,8 @@ export class PanelObject {
         const h = this.panelHeight * this.resolutionScale;
         const scale = this.resolutionScale;
 
-        const borderRadius = 15 * scale;
-        const borderWidth = 7 * scale;
+        const borderRadius = 22 * scale;
+        const borderWidth = 10 * scale;
 
         // Clear all canvases
         this.backgroundCtx.clearRect(0, 0, w, h);
