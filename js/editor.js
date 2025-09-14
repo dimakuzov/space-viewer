@@ -244,9 +244,7 @@ export class EditorController {
 
         this.raycaster.setFromCamera(this.mouse, this.camera);
 
-        if (this.selectedObjectType === 'delete') {
-            this.deleteObject();
-        } else if (this.selectedObjectType === 'panel') {
+        if (this.selectedObjectType === 'panel') {
             // Check if we clicked on an existing panel first
             const panelClicked = this.checkPanelClick();
             if (!panelClicked) {
@@ -353,22 +351,6 @@ export class EditorController {
             console.log('Intersected with:', intersects[0].object.type || 'unknown object');
         } else {
             console.log('No intersection found');
-        }
-    }
-
-    deleteObject() {
-        const intersects = this.raycaster.intersectObjects(this.placedObjects);
-
-        if (intersects.length > 0) {
-            const objectToRemove = intersects[0].object;
-
-            // Dispatch event for deletion
-            const event = new CustomEvent('objectDelete', {
-                detail: { object: objectToRemove }
-            });
-            document.dispatchEvent(event);
-
-            console.log('Removed object:', objectToRemove.userData);
         }
     }
 

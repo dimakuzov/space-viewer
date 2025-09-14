@@ -12,40 +12,32 @@
 </head>
 <body>
     <div class="ui-panel">
-        <h3>Scene Editor</h3>
-
         <div class="mode-toggle">
             <button id="viewMode" class="active">View Mode</button>
             <button id="editMode">Edit Mode</button>
         </div>
 
         <div class="object-tools" id="objectTools" style="display: none;">
-            <button id="addCube">Add Panel</button>
-            <button id="deleteObject">Delete Object</button>
-            <button id="toggleGLB" class="glb-toggle">Show GLB</button>
-            <button id="editCollider" class="collider-edit-toggle">Edit Collider</button>
-            <button id="saveTransform" class="save-transform-btn">Save Transform</button>
+            <button id="addPanel">Add/Edit Panel</button>
+            <button id="toggleGLB">Show Collider</button>
+            <button id="editCollider">Edit Collider Position</button>
+            <button id="saveTransform">Save Collider Transform</button>
         </div>
 
-        <div class="controls-info">
+        <div class="controls-info" id="viewControls">
             <div><strong>View Mode:</strong></div>
             <div>WASD - Move</div>
             <div>Q/E - Up/Down</div>
             <div>Mouse - Look</div>
             <div>Click to lock cursor</div>
-            <div>Click panels with green border to open URL</div>
-            <br>
+            <div>Click panels with blue border to open URL</div>
+        </div>
+
+        <div class="controls-info" id="editControls" style="display: none;">
             <div><strong>Edit Mode:</strong></div>
             <div>Click to place panels</div>
             <div>Click on panels to edit text & URL</div>
             <div>Click on objects to select/delete</div>
-            <div><strong>Hotkeys:</strong></div>
-            <div>1 - Add Panel</div>
-            <div>X/Del - Delete</div>
-            <div>V - Toggle GLB visibility</div>
-            <div>C - Toggle Collider Edit</div>
-            <div>S - Save Transform</div>
-            <div>Tab - Toggle Mode</div>
             <br>
             <div><strong>Panel Edit Mode:</strong></div>
             <div>Edit text and URL (optional)</div>
@@ -58,9 +50,8 @@
             <div><strong>Collider Edit Mode:</strong></div>
             <div>WASD - Move Collider</div>
             <div>Q/E - Move Collider Up/Down</div>
-            <div>R/F - Scale (±0.5%)</div>
-            <div>T/Y - Rotate (±0.5°)</div>
-            <div>5cm per movement</div>
+            <div>R/F - Scale</div>
+            <div>T/Y - Rotate</div>
         </div>
     </div>
 

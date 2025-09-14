@@ -14,9 +14,12 @@ export class UIController {
         // Tools panel
         this.objectTools = document.getElementById('objectTools');
 
+        // Controls sections
+        this.viewControls = document.getElementById('viewControls');
+        this.editControls = document.getElementById('editControls');
+
         // Object buttons - update for panels
-        this.addPanelBtn = document.getElementById('addCube'); // Reuse the button
-        this.deleteObjectBtn = document.getElementById('deleteObject');
+        this.addPanelBtn = document.getElementById('addPanel');
 
         // GLB visibility toggle
         this.toggleGLBBtn = document.getElementById('toggleGLB');
@@ -29,11 +32,6 @@ export class UIController {
 
         // Crosshair
         this.crosshair = document.getElementById('crosshair');
-
-        // Update button text for panels
-        if (this.addPanelBtn) {
-            this.addPanelBtn.textContent = 'Add Panel';
-        }
     }
 
     bindEvents() {
@@ -51,10 +49,6 @@ export class UIController {
             this.selectObjectType('panel');
         });
 
-        this.deleteObjectBtn.addEventListener('click', () => {
-            this.selectObjectType('delete');
-        });
-
         // GLB visibility toggle
         this.toggleGLBBtn.addEventListener('click', () => {
             this.toggleGLBVisibility();
@@ -69,47 +63,6 @@ export class UIController {
         this.saveTransformBtn.addEventListener('click', () => {
             this.saveColliderTransform();
         });
-
-        // Hotkeys
-        document.addEventListener('keydown', this.onKeyDown.bind(this));
-    }
-
-    onKeyDown(event) {
-        // Don't process hotkeys if panel editor is active
-        if (this.app.panelEditor && this.app.panelEditor.isEditing()) {
-            return;
-        }
-
-        // Tab to switch modes
-        if (event.code === 'Tab') {
-            event.preventDefault();
-            this.app.isEditMode ? this.setViewMode() : this.setEditMode();
-        }
-
-        // Hotkeys for edit mode
-        if (this.app.isEditMode) {
-            switch(event.code) {
-                case 'Digit1':
-                    this.selectObjectType('panel');
-                    break;
-                case 'KeyX':
-                case 'Delete':
-                    this.selectObjectType('delete');
-                    break;
-                case 'KeyV':
-                    this.toggleGLBVisibility();
-                    break;
-                case 'KeyC':
-                    this.toggleEditCollider();
-                    break;
-                case 'KeyS':
-                    if (event.ctrlKey || event.metaKey) {
-                        event.preventDefault();
-                        this.saveColliderTransform();
-                    }
-                    break;
-            }
-        }
     }
 
     setViewMode() {
@@ -121,8 +74,9 @@ export class UIController {
         this.objectTools.style.display = 'none';
         this.crosshair.style.display = 'none';
 
-        // Clear tool selection
-        this.clearObjectToolSelection();
+        // Show view controls, hide edit controls
+        this.viewControls.style.display = 'block';
+        this.editControls.style.display = 'none';
 
         // Disable collider edit mode
         this.app.editorController.setColliderEditMode(false);
@@ -140,6 +94,10 @@ export class UIController {
         this.objectTools.style.display = 'block';
         this.crosshair.style.display = 'block';
 
+        // Show edit controls, hide view controls
+        this.viewControls.style.display = 'none';
+        this.editControls.style.display = 'block';
+
         // Select panel by default
         this.selectObjectType('panel');
 
@@ -155,22 +113,11 @@ export class UIController {
 
         this.app.editorController.setSelectedObjectType(type);
 
-        // Update button visual states
-        this.clearObjectToolSelection();
-
         switch(type) {
             case 'panel':
                 this.addPanelBtn.classList.add('active');
                 break;
-            case 'delete':
-                this.deleteObjectBtn.classList.add('active');
-                break;
         }
-    }
-
-    clearObjectToolSelection() {
-        [this.addPanelBtn, this.deleteObjectBtn]
-            .forEach(btn => btn.classList.remove('active'));
     }
 
     toggleGLBVisibility() {
@@ -196,7 +143,6 @@ export class UIController {
 
         // Clear object tool selection when entering collider edit mode
         if (newState) {
-            this.clearObjectToolSelection();
             this.crosshair.style.display = 'none';
         } else {
             this.crosshair.style.display = 'block';

@@ -333,9 +333,7 @@ export class PanelEditor {
         `;
         this.instructions.innerHTML = `
             <strong>Controls:</strong><br>
-            WASD - Move panel horizontally, R/F - Move panel up/down<br>
-            <strong>Note:</strong> Clicking "Save & Download" will download a data.json file that you should place in the assets/ folder.
-        `;
+            WASD - Move panel horizontally, R/F - Move panel up/down`;
         this.updateInstructions(false);
 
         inputContainer.appendChild(label);
@@ -485,11 +483,9 @@ export class PanelEditor {
         if (!this.instructions) return;
 
         if (positionEditMode) {
+            this.instructions.style.display = 'block';
             this.instructions.innerHTML = `
-                <strong style="color: #FF9800;">Position Edit Mode Active:</strong><br>
-                WASD - Move panel horizontally, R/F - Move panel up/down<br>
-                <strong>Note:</strong> Clicking "Save & Download" will download a data.json file that you should place in the assets/ folder.
-            `;
+                <strong style="color: #FF9800;">Position Edit Mode Active:</strong>WASD - Move panel horizontally, R/F - Move panel up/down`;
             this.instructions.style.background = '#fff3cd';
             this.instructions.style.border = '1px solid #ffc107';
 
@@ -508,11 +504,7 @@ export class PanelEditor {
                 this.urlInput.style.cursor = 'not-allowed';
             }
         } else {
-            this.instructions.innerHTML = `
-                <strong style="color: #4CAF50;">Text Edit Mode:</strong><br>
-                Write a description and edit the position (press Edit Position button)<br>
-                <strong>Note:</strong> Clicking "Save & Download" will download a data.json file that you should place in the assets/ folder.
-            `;
+            this.instructions.style.display = 'none';
             this.instructions.style.background = 'rgba(0, 0, 0, 0.05)';
             this.instructions.style.border = 'none';
 

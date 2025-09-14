@@ -37,9 +37,11 @@ canvas {
     color: white;
     border: none;
     padding: 8px 12px;
-    margin-right: 5px;
     border-radius: 4px;
     cursor: pointer;
+    width: calc(50%);
+    display: block;
+    margin: 6px 0px;
     transition: background 0.3s;
 }
 
@@ -60,10 +62,11 @@ canvas {
     color: white;
     border: none;
     padding: 8px 12px;
-    margin: 2px;
+    margin: 3px 0px;
     border-radius: 4px;
     cursor: pointer;
-    width: calc(50% - 4px);
+    width: calc(100% - 4px);
+    display: block;
     transition: background 0.3s;
 }
 
