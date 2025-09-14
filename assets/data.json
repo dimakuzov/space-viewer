@@ -19,27 +19,60 @@
   "textPanels": [
     {
       "id": 1757766180251,
-      "text": "My custom panel",
-      "url": "https://www.color-hex.com/color/00001e",
+      "text": "My laptop 💻\n(not for sale)",
+      "url": "https://www.google.com/search?q=macbook&oq=macbook&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIMCAEQIxgnGIAEGIoFMgwIAhAjGCcYgAQYigUyBwgDEAAYgAQyBwgEEAAYgAQyBwgFEAAYgAQyBwgGEAAYgAQyBwgHEAAYgAQyBwgIEAAYjwIyBwgJEAAYjwLSAQg0NzczajBqN6gCALACAA&sourceid=chrome&ie=UTF-8",
       "position": {
-        "x": 1.7899924522481427,
-        "y": -0.15643254375936266,
-        "z": -0.18402688031276832
+        "x": 3.1383901976140023,
+        "y": -0.696432543759363,
+        "z": -1.1475172686732853
       },
       "createdAt": "2025-09-13T12:23:00.251Z"
     },
     {
       "id": 1757768341445,
-      "text": "custom panel 2",
-      "url": "",
+      "text": "Capboard (500$)",
+      "url": "https://www.google.com/search?q=capboaed&oq=capboaed&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIJCAEQABgNGIAEMgkIAhAAGA0YgAQyCQgDEAAYDRiABDIJCAQQABgNGIAEMgkIBRAuGA0YgAQyCQgGEAAYDRiABDIJCAcQABgNGIAEMgkICBAAGA0YgAQyCQgJEAAYDRiABNIBCDMzMDNqMGo5qAIAsAIA&sourceid=chrome&ie=UTF-8",
       "position": {
-        "x": 2.5029857159347,
+        "x": 2.785065242939369,
         "y": 0.4700866272433156,
-        "z": -0.23297011406255397
+        "z": -0.14504321007508064
       },
       "createdAt": "2025-09-13T12:59:01.445Z"
+    },
+    {
+      "id": 1757848854224,
+      "text": "The best dog ever!",
+      "url": "",
+      "position": {
+        "x": -1.3624821518910102,
+        "y": -1.7240079982610435,
+        "z": 0.8379512656939873
+      },
+      "createdAt": "2025-09-14T11:20:54.225Z"
+    },
+    {
+      "id": 1757849565249,
+      "text": "It's working! 🥳",
+      "url": "",
+      "position": {
+        "x": -2.93407182268842,
+        "y": 1.5264889958436472,
+        "z": -0.5553527885787382
+      },
+      "createdAt": "2025-09-14T11:32:45.249Z"
+    },
+    {
+      "id": 1757849780481,
+      "text": "Wonderful view",
+      "url": "https://www.pinterest.com/pin/colour-my-world--342132902944104782/",
+      "position": {
+        "x": -2.321687220103007,
+        "y": 0.8446468205043344,
+        "z": -2.6404723278313655
+      },
+      "createdAt": "2025-09-14T11:36:20.481Z"
     }
   ],
-  "savedAt": "2025-09-13T13:00:04.290Z",
+  "savedAt": "2025-09-14T11:45:10.527Z",
   "version": "1.2"
 }

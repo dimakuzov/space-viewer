@@ -101,7 +101,7 @@ export class PanelObject {
         // Position them slightly apart to avoid z-fighting
         this.backgroundMesh.position.z = 0;
         this.borderMesh.position.z = 0.001;
-        this.textMesh.position.z = 0.001;
+        this.textMesh.position.z = 0.002;
 
         // Add all meshes to group
         this.group.add(this.backgroundMesh);
@@ -138,7 +138,7 @@ export class PanelObject {
 
         // Rest of the text drawing code stays the same...
         this.textCtx.fillStyle = 'rgba(255, 255, 255, 1.0)';
-        this.textCtx.font = `bold ${28 * scale}px Montserrat, Arial, sans-serif`;
+        this.textCtx.font = `bold ${56 * scale}px Montserrat, Arial, sans-serif`;
         this.textCtx.textAlign = 'center';
         this.textCtx.textBaseline = 'middle';
 
@@ -146,7 +146,7 @@ export class PanelObject {
         const words = this.text.split(' ');
         const lines = [];
         let currentLine = '';
-        const maxWidth = w - (40 * scale);
+        const maxWidth = w - (80 * scale);
 
         for (let word of words) {
             const testLine = currentLine + (currentLine ? ' ' : '') + word;
@@ -163,12 +163,12 @@ export class PanelObject {
             lines.push(currentLine);
         }
 
-        const lineHeight = 40 * scale;
+        const lineHeight = 80 * scale;
         let startY = (h - (lines.length - 1) * lineHeight) / 2;
 
         // If there's a URL, adjust text position to make room for URL indicator
         if (this.url) {
-            startY -= 10 * scale; // Move text up slightly
+            startY -= 20 * scale; // Move text up slightly
         }
 
         lines.forEach((line, index) => {
@@ -177,9 +177,9 @@ export class PanelObject {
 
         // Add URL indicator if URL exists
         if (this.url) {
-            this.textCtx.font = `bold ${11 * scale}px Montserrat, Arial, sans-serif`;
+            this.textCtx.font = `bold ${22 * scale}px Montserrat, Arial, sans-serif`;
             this.textCtx.fillStyle = 'rgba(0, 255, 0, 1.0)';
-            this.textCtx.fillText('🔗 Click to open link', w / 2, h - (20 * scale));
+            this.textCtx.fillText('🔗 Click to open link', w / 2, h - (40 * scale));
         }
 
         // Update all textures
